@@ -1,0 +1,507 @@
+:root {
+  color-scheme: dark;
+  --bg: #11140f;
+  --panel: #1c221a;
+  --panel-2: #252d21;
+  --line: #4b5842;
+  --text: #f2f0db;
+  --muted: #b7b28e;
+  --accent: #f4c23c;
+  --danger: #dd5d46;
+  --control: #343d30;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(84, 93, 54, 0.45), transparent 34rem),
+    linear-gradient(135deg, #0f130d 0%, #171b13 46%, #0d100c 100%);
+  color: var(--text);
+  font-family:
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  overflow-x: hidden;
+}
+
+button {
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.app-shell {
+  width: min(100%, 1240px);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+    max(14px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hud {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.hud > div,
+.side-panel {
+  border: 1px solid var(--line);
+  background: rgba(28, 34, 26, 0.9);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.26);
+}
+
+.hud > div {
+  min-height: 58px;
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.hud-label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.hud strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--accent);
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  line-height: 1;
+}
+
+.game-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) 260px;
+  gap: 12px;
+  align-items: start;
+}
+
+.board-wrap {
+  position: relative;
+  width: min(100%, calc(100svh - 104px));
+  max-width: 832px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border: 4px solid #30372c;
+  border-radius: 8px;
+  background: #0c0d0a;
+  box-shadow:
+    0 0 0 1px #6c744c,
+    0 24px 60px rgba(0, 0, 0, 0.42);
+  overflow: hidden;
+}
+
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+.message-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+  background: rgba(8, 10, 7, 0.72);
+}
+
+.message-overlay.hidden {
+  display: none;
+}
+
+.message-overlay h1 {
+  margin: 0;
+  color: var(--accent);
+  font-size: clamp(2rem, 9vw, 4.8rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.message-overlay p {
+  max-width: 28rem;
+  margin: 0;
+  color: #eee9bd;
+  font-size: clamp(0.95rem, 2.4vw, 1.1rem);
+}
+
+#startButton,
+.secondary-button,
+.fire-button {
+  min-height: 46px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #1b1707;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+#startButton {
+  padding: 0 22px;
+  min-width: 148px;
+}
+
+.side-panel {
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.panel-section {
+  display: grid;
+  gap: 10px;
+}
+
+.panel-section h2 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.92rem;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.panel-section p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.secondary-button {
+  width: 100%;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.secondary-button:active,
+.touch-button:active,
+.fire-button:active,
+#startButton:active {
+  transform: translateY(1px);
+}
+
+.touch-controls {
+  display: none;
+  --dpad-size: clamp(120px, 38vw, 156px);
+  --mobile-action-width: clamp(64px, 20vw, 86px);
+  grid-template-columns: var(--dpad-size) var(--mobile-action-width) minmax(88px, 136px);
+  justify-content: space-between;
+  gap: clamp(6px, 2vw, 14px);
+  align-items: end;
+  padding-top: 2px;
+}
+
+.dpad {
+  width: var(--dpad-size);
+  height: var(--dpad-size);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+
+.touch-button {
+  position: relative;
+  border: 1px solid #67705d;
+  background: var(--control);
+}
+
+.touch-button::before {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border-style: solid;
+}
+
+.touch-button.up {
+  grid-column: 2;
+  grid-row: 1;
+  border-radius: 8px 8px 0 0;
+}
+
+.touch-button.left {
+  grid-column: 1;
+  grid-row: 2;
+  border-radius: 8px 0 0 8px;
+}
+
+.touch-button.right {
+  grid-column: 3;
+  grid-row: 2;
+  border-radius: 0 8px 8px 0;
+}
+
+.touch-button.down {
+  grid-column: 2;
+  grid-row: 3;
+  border-radius: 0 0 8px 8px;
+}
+
+.touch-button.up::before {
+  border-width: 0 10px 16px;
+  border-color: transparent transparent var(--accent);
+}
+
+.touch-button.down::before {
+  border-width: 16px 10px 0;
+  border-color: var(--accent) transparent transparent;
+}
+
+.touch-button.left::before {
+  border-width: 10px 16px 10px 0;
+  border-color: transparent var(--accent) transparent transparent;
+}
+
+.touch-button.right::before {
+  border-width: 10px 0 10px 16px;
+  border-color: transparent transparent transparent var(--accent);
+}
+
+.fire-button {
+  width: 100%;
+  height: 82px;
+  background: var(--danger);
+  color: #fff7ed;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+}
+
+.mobile-actions {
+  display: none;
+  gap: 8px;
+  align-self: end;
+}
+
+.mobile-action-button {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid #67705d;
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  body {
+    overflow: hidden;
+  }
+
+  .app-shell {
+    gap: 8px;
+  }
+
+  .game-layout {
+    display: block;
+  }
+
+  .side-panel {
+    display: none;
+  }
+
+  .hud {
+    gap: 6px;
+  }
+
+  .hud > div {
+    min-height: 48px;
+    padding: 8px;
+  }
+
+  .hud-label {
+    font-size: 0.62rem;
+  }
+
+  .board-wrap {
+    width: min(100%, calc(100svh - 232px));
+    border-width: 3px;
+  }
+
+  .touch-controls {
+    display: grid;
+  }
+
+  .mobile-actions {
+    display: grid;
+  }
+}
+
+@media (max-width: 480px) {
+  .hud {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .hud > div {
+    min-width: 0;
+    padding: 7px 5px;
+  }
+
+  .hud strong {
+    font-size: 1rem;
+  }
+
+  .board-wrap {
+    width: min(100%, calc(100svh - 218px));
+  }
+
+  .touch-controls {
+    --dpad-size: clamp(120px, 38vw, 144px);
+    --mobile-action-width: clamp(62px, 20vw, 76px);
+  }
+
+  .dpad {
+    width: var(--dpad-size);
+    height: var(--dpad-size);
+  }
+
+  .fire-button {
+    height: 82px;
+    font-size: 0.9rem;
+  }
+
+  .mobile-action-button {
+    min-height: 37px;
+    font-size: 0.62rem;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 520px) {
+  .app-shell {
+    position: relative;
+    width: 100%;
+    height: 100svh;
+    min-height: 0;
+    padding: max(6px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+      max(6px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+    gap: 6px;
+  }
+
+  .hud {
+    position: relative;
+    z-index: 3;
+    height: 46px;
+    gap: 6px;
+  }
+
+  .hud > div {
+    min-height: 46px;
+    padding: 6px 8px;
+  }
+
+  .hud-label {
+    font-size: 0.58rem;
+  }
+
+  .hud strong {
+    margin-top: 2px;
+    font-size: 1rem;
+  }
+
+  .game-layout {
+    position: absolute;
+    inset: 58px 0 6px;
+    display: block;
+  }
+
+  .board-wrap {
+    width: min(calc(100svh - 64px), calc(100vw - 310px));
+    max-width: none;
+    height: auto;
+    margin: 0 auto;
+  }
+
+  .message-overlay {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .message-overlay h1 {
+    font-size: clamp(1.55rem, 7vh, 2.4rem);
+  }
+
+  .message-overlay p {
+    max-width: 18rem;
+    font-size: clamp(0.7rem, 2.5vh, 0.9rem);
+    line-height: 1.25;
+  }
+
+  #startButton {
+    min-width: 126px;
+    min-height: 38px;
+    padding: 0 14px;
+    font-size: 0.8rem;
+  }
+
+  .touch-controls {
+    --dpad-size: clamp(112px, 31vh, 132px);
+    position: absolute;
+    z-index: 4;
+    inset: 58px max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+    width: auto;
+    padding: 0;
+    grid-template-columns: var(--dpad-size) minmax(0, 1fr) clamp(108px, 17vw, 128px);
+    gap: 8px;
+    align-items: stretch;
+    pointer-events: none;
+  }
+
+  .dpad {
+    grid-column: 1;
+    align-self: end;
+    pointer-events: auto;
+  }
+
+  .mobile-actions {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: start;
+    width: 100%;
+    margin-top: 2px;
+    pointer-events: auto;
+  }
+
+  .fire-button {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: end;
+    height: clamp(64px, 20vh, 78px);
+    pointer-events: auto;
+  }
+
+  .mobile-action-button {
+    min-height: 34px;
+  }
+}

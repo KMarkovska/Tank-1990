@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Tank 1990</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hud" aria-label="Game status">
+        <div>
+          <span class="hud-label">Stage</span>
+          <strong id="stageValue">1</strong>
+        </div>
+        <div>
+          <span class="hud-label">Lives</span>
+          <strong id="livesValue">3</strong>
+        </div>
+        <div>
+          <span class="hud-label">Enemies</span>
+          <strong id="enemiesValue">0</strong>
+        </div>
+        <div>
+          <span class="hud-label">Score</span>
+          <strong id="scoreValue">0</strong>
+        </div>
+      </section>
+
+      <section class="game-layout">
+        <div class="board-wrap">
+          <canvas id="gameCanvas" width="832" height="832" aria-label="Tank battle game"></canvas>
+          <div id="messageOverlay" class="message-overlay">
+            <h1>Tank 1990</h1>
+            <p>Defend the base. Clear all enemy tanks.</p>
+            <button id="startButton" type="button">Start Battle</button>
+          </div>
+        </div>
+
+        <aside class="side-panel" aria-label="Controls and options">
+          <div class="panel-section">
+            <h2>Controls</h2>
+            <p>Move with WASD or arrow keys. Fire with Space or Enter.</p>
+          </div>
+          <div class="panel-section">
+            <h2>Battle</h2>
+            <button id="pauseButton" class="secondary-button" type="button">Pause</button>
+            <button id="restartButton" class="secondary-button" type="button">Restart</button>
+          </div>
+        </aside>
+      </section>
+
+      <section class="touch-controls" aria-label="Touch controls">
+        <div class="dpad">
+          <button class="touch-button up" data-dir="up" type="button" aria-label="Move up"></button>
+          <button class="touch-button left" data-dir="left" type="button" aria-label="Move left"></button>
+          <button class="touch-button right" data-dir="right" type="button" aria-label="Move right"></button>
+          <button class="touch-button down" data-dir="down" type="button" aria-label="Move down"></button>
+        </div>
+        <div class="mobile-actions" aria-label="Mobile battle controls">
+          <button id="mobilePauseButton" class="mobile-action-button" type="button">Pause</button>
+          <button id="mobileRestartButton" class="mobile-action-button" type="button">Restart</button>
+        </div>
+        <button id="fireButton" class="fire-button" type="button" aria-label="Fire">Fire</button>
+      </section>
+    </main>
+
+    <script src="game.js"></script>
+  </body>
+</html>
