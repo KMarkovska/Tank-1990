@@ -718,23 +718,44 @@ window.addEventListener("keyup", (event) => {
 
 document.querySelectorAll(".touch-button").forEach((button) => {
   const dir = button.dataset.dir;
+  let activePointerId = null;
+
   button.addEventListener("pointerdown", (event) => {
     event.preventDefault();
+    activePointerId = event.pointerId;
     button.setPointerCapture(event.pointerId);
     pressDir(dir, true);
   });
-  button.addEventListener("pointerup", () => pressDir(dir, false));
-  button.addEventListener("pointercancel", () => pressDir(dir, false));
-  button.addEventListener("pointerleave", () => pressDir(dir, false));
+
+  const releaseDirection = (event) => {
+    if (activePointerId !== event.pointerId) return;
+    activePointerId = null;
+    pressDir(dir, false);
+  };
+
+  button.addEventListener("pointerup", releaseDirection);
+  button.addEventListener("pointercancel", releaseDirection);
+  button.addEventListener("lostpointercapture", releaseDirection);
 });
+
+let firePointerId = null;
 
 fireButton.addEventListener("pointerdown", (event) => {
   event.preventDefault();
+  firePointerId = event.pointerId;
+  fireButton.setPointerCapture(event.pointerId);
   keys.add(" ");
 });
-fireButton.addEventListener("pointerup", () => keys.delete(" "));
-fireButton.addEventListener("pointercancel", () => keys.delete(" "));
-fireButton.addEventListener("pointerleave", () => keys.delete(" "));
+
+const releaseFire = (event) => {
+  if (firePointerId !== event.pointerId) return;
+  firePointerId = null;
+  keys.delete(" ");
+};
+
+fireButton.addEventListener("pointerup", releaseFire);
+fireButton.addEventListener("pointercancel", releaseFire);
+fireButton.addEventListener("lostpointercapture", releaseFire);
 
 startButton.addEventListener("click", () => {
   if (game?.state === "paused") {
