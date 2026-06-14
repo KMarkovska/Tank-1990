@@ -15,3 +15,7 @@ A browser-playable arcade tank game for mobile phones, tablets, and computers, i
 ## Objective
 
 Defend the base at the bottom of the map. Destroy all enemy tanks to advance to the next stage.
+
+## Game image
+
+<img width="931" height="693" alt="image" src="https://github.com/user-attachments/assets/21af6455-8d63-42c2-9b8e-5804eec6937f" />
