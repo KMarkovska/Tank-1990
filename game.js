@@ -613,15 +613,53 @@ function drawTrees(x, y) {
 
 function drawBase() {
   const base = game.base;
-  ctx.fillStyle = base.alive ? "#d1c27b" : "#5a342d";
+  const plaqueColor = base.alive ? "#d1c27b" : "#5a342d";
+  const eagleColor = base.alive ? "#504521" : "#221816";
+
+  ctx.fillStyle = plaqueColor;
   ctx.fillRect(base.x + 8, base.y + 5, 48, 22);
-  ctx.fillStyle = base.alive ? "#504521" : "#221816";
-  ctx.beginPath();
-  ctx.moveTo(base.x + 16, base.y + 25);
-  ctx.lineTo(base.x + 32, base.y + 8);
-  ctx.lineTo(base.x + 48, base.y + 25);
-  ctx.closePath();
-  ctx.fill();
+  ctx.fillStyle = shade(plaqueColor, 20);
+  ctx.fillRect(base.x + 8, base.y + 5, 48, 3);
+  ctx.fillStyle = shade(plaqueColor, -22);
+  ctx.fillRect(base.x + 8, base.y + 24, 48, 3);
+
+  drawPixelEagle(base.x + 12, base.y + 7, eagleColor, plaqueColor);
+}
+
+function drawPixelEagle(x, y, color, plaqueColor) {
+  const pixels = [
+    "1111111111111100000000000011111111111111",
+    "1111111111111100011111100011111111111111",
+    "0001111111111100111111100011111111111000",
+    "0111111111111100001111100011111111111110",
+    "0011111111111110001111100111111111111100",
+    "0000011111111110011111101111111111100000",
+    "0001111111111111111111111111111111111000",
+    "0000000111111111111111111111111110000000",
+    "0000011111111111111111111111111111100000",
+    "0000011111111111111111111111111111100000",
+    "0000000000111111111111111111110000000000",
+    "0000000000000011111111111100000000000000",
+    "0000000000000001111111111000000000000000",
+    "0000000000000000111111110000000000000000",
+    "0000000000000000011111100000000000000000",
+    "0000000000000000111111110000000000000000",
+    "0000000000000000111111111000000000000000",
+    "0000000000000001111111111100000000000000",
+  ];
+  const size = 1;
+
+  ctx.fillStyle = color;
+  for (let row = 0; row < pixels.length; row += 1) {
+    for (let col = 0; col < pixels[row].length; col += 1) {
+      if (pixels[row][col] === "1") {
+        ctx.fillRect(x + col * size, y + row * size, size, size);
+      }
+    }
+  }
+
+  ctx.fillStyle = shade(plaqueColor, 30);
+  ctx.fillRect(x + 20, y + 2, 2, 1);
 }
 
 function drawTank(tank) {
