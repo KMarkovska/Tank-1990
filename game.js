@@ -16,6 +16,8 @@ const fireButton = document.getElementById("fireButton");
 const TILE = 32;
 const GRID = 26;
 const WORLD = TILE * GRID;
+const PLAYER_SPAWN_X = 9 * TILE;
+const PLAYER_SPAWN_Y = 24 * TILE;
 const DIRS = {
   up: { x: 0, y: -1 },
   right: { x: 1, y: 0 },
@@ -47,8 +49,8 @@ function makeGame() {
     map: createMap(),
     player: {
       type: "player",
-      x: 12 * TILE,
-      y: 24 * TILE,
+      x: PLAYER_SPAWN_X,
+      y: PLAYER_SPAWN_Y,
       w: 28,
       h: 28,
       dir: "up",
@@ -129,8 +131,7 @@ function createMap() {
     [13, 0],
     [24, 0],
     [25, 0],
-    [12, 24],
-    [13, 24],
+    [9, 24],
     [12, 25],
     [13, 25],
   ]) {
@@ -431,8 +432,8 @@ function damagePlayer() {
     game.player.alive = false;
     return;
   }
-  game.player.x = 12 * TILE;
-  game.player.y = 24 * TILE;
+  game.player.x = PLAYER_SPAWN_X;
+  game.player.y = PLAYER_SPAWN_Y;
   game.player.dir = "up";
   game.playerInvincible = 160;
 }
@@ -474,11 +475,13 @@ function checkEndState() {
     game.playerInvincible = 160;
     game.spawnTimer = 120;
     game.map = createMap();
-    game.player.x = 12 * TILE;
-    game.player.y = 24 * TILE;
+    game.player.x = PLAYER_SPAWN_X;
+    game.player.y = PLAYER_SPAWN_Y;
     game.base.alive = true;
     for (const [x, y] of [
       [11, 24],
+      [12, 24],
+      [13, 24],
       [14, 24],
       [11, 25],
       [14, 25],
