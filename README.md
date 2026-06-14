@@ -1,6 +1,6 @@
 # Tank 1990
 
-A browser-playable arcade tank defense game inspired by classic 1990s tank battle games.
+A browser-playable arcade tank game for mobile phones, tablets, and computers, inspired by classic 1990s tank games.
 
 ## Play
 
