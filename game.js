@@ -528,9 +528,16 @@ function render() {
 }
 
 function drawBackdrop() {
-  ctx.fillStyle = "#11130f";
+  const floor = ctx.createLinearGradient(0, 0, WORLD, WORLD);
+  floor.addColorStop(0, "#10160f");
+  floor.addColorStop(0.55, "#080d0a");
+  floor.addColorStop(1, "#060806");
+  ctx.fillStyle = floor;
   ctx.fillRect(0, 0, WORLD, WORLD);
-  ctx.strokeStyle = "rgba(255,255,255,0.035)";
+  ctx.fillStyle = "rgba(116, 130, 88, 0.06)";
+  ctx.fillRect(0, 0, WORLD, 18);
+  ctx.fillRect(0, 0, 18, WORLD);
+  ctx.strokeStyle = "rgba(154, 170, 126, 0.08)";
   ctx.lineWidth = 1;
   for (let i = 0; i <= WORLD; i += TILE) {
     ctx.beginPath();
@@ -562,53 +569,98 @@ function drawMap(onlyTrees) {
 }
 
 function drawBrick(x, y) {
-  ctx.fillStyle = "#8e4933";
+  ctx.fillStyle = "#422416";
   ctx.fillRect(x, y, TILE, TILE);
-  ctx.fillStyle = "#b86942";
+
   for (let row = 0; row < 4; row += 1) {
     const offset = row % 2 === 0 ? 0 : 8;
     for (let col = -1; col < 4; col += 1) {
-      ctx.fillRect(x + offset + col * 16 + 1, y + row * 8 + 1, 14, 6);
+      const bx = x + offset + col * 16 + 1;
+      const by = y + row * 8 + 1;
+      if (bx < x - 1 || bx >= x + TILE) continue;
+      ctx.fillStyle = "#c96f3e";
+      ctx.fillRect(bx, by, 14, 6);
+      ctx.fillStyle = "#ee9456";
+      ctx.fillRect(bx + 1, by + 1, 11, 1);
+      ctx.fillRect(bx + 1, by + 2, 1, 2);
+      ctx.fillStyle = "#7d351f";
+      ctx.fillRect(bx + 1, by + 5, 13, 1);
+      ctx.fillRect(bx + 13, by + 2, 1, 4);
+      ctx.fillStyle = "rgba(71, 30, 18, 0.5)";
+      ctx.fillRect(bx + 5, by + 3, 2, 1);
+      ctx.fillRect(bx + 10, by + 4, 1, 1);
     }
   }
 }
 
 function drawSteel(x, y) {
-  ctx.fillStyle = "#9fa49c";
+  ctx.fillStyle = "#565b56";
   ctx.fillRect(x, y, TILE, TILE);
-  ctx.fillStyle = "#60665f";
-  ctx.fillRect(x + 4, y + 4, 10, 10);
-  ctx.fillRect(x + 18, y + 4, 10, 10);
-  ctx.fillRect(x + 4, y + 18, 10, 10);
-  ctx.fillRect(x + 18, y + 18, 10, 10);
+  for (const [px, py] of [
+    [2, 2],
+    [17, 2],
+    [2, 17],
+    [17, 17],
+  ]) {
+    ctx.fillStyle = "#c2c4be";
+    ctx.fillRect(x + px, y + py, 13, 13);
+    ctx.fillStyle = "#7b817a";
+    ctx.fillRect(x + px + 2, y + py + 2, 9, 9);
+    ctx.fillStyle = "#d8d9d2";
+    ctx.fillRect(x + px + 3, y + py + 3, 6, 1);
+    ctx.fillRect(x + px + 3, y + py + 3, 1, 6);
+    ctx.fillStyle = "#3d423d";
+    ctx.fillRect(x + px + 10, y + py + 5, 2, 2);
+    ctx.fillRect(x + px + 5, y + py + 10, 2, 2);
+  }
 }
 
 function drawWater(x, y) {
-  ctx.fillStyle = "#275f73";
+  ctx.fillStyle = "#113c53";
   ctx.fillRect(x, y, TILE, TILE);
-  ctx.strokeStyle = "#79bed0";
-  ctx.lineWidth = 3;
+  ctx.fillStyle = "rgba(54, 152, 179, 0.35)";
+  ctx.fillRect(x, y + 1, TILE, 5);
+  ctx.fillStyle = "rgba(7, 28, 42, 0.32)";
+  ctx.fillRect(x, y + 24, TILE, 8);
+  ctx.strokeStyle = "#54c7e6";
+  ctx.lineWidth = 2;
+  for (const yy of [8, 17, 26]) {
+    ctx.beginPath();
+    ctx.moveTo(x - 2, y + yy);
+    ctx.quadraticCurveTo(x + 5, y + yy - 5, x + 12, y + yy);
+    ctx.quadraticCurveTo(x + 19, y + yy + 5, x + 26, y + yy);
+    ctx.quadraticCurveTo(x + 31, y + yy - 4, x + 36, y + yy);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = "rgba(183, 239, 245, 0.55)";
+  ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(x + 4, y + 10);
-  ctx.quadraticCurveTo(x + 12, y + 4, x + 20, y + 10);
-  ctx.quadraticCurveTo(x + 26, y + 15, x + 32, y + 10);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(x, y + 23);
-  ctx.quadraticCurveTo(x + 8, y + 17, x + 16, y + 23);
-  ctx.quadraticCurveTo(x + 24, y + 29, x + 32, y + 23);
+  ctx.moveTo(x + 5, y + 11);
+  ctx.quadraticCurveTo(x + 12, y + 7, x + 19, y + 11);
   ctx.stroke();
 }
 
 function drawTrees(x, y) {
-  ctx.fillStyle = "rgba(30, 94, 45, 0.84)";
+  ctx.fillStyle = "#1c4b2b";
   ctx.fillRect(x, y, TILE, TILE);
-  ctx.fillStyle = "rgba(88, 145, 68, 0.72)";
-  ctx.beginPath();
-  ctx.arc(x + 10, y + 11, 9, 0, Math.PI * 2);
-  ctx.arc(x + 21, y + 12, 10, 0, Math.PI * 2);
-  ctx.arc(x + 16, y + 22, 9, 0, Math.PI * 2);
-  ctx.fill();
+  const leaves = [
+    [6, 8, 7, "#3f8b38"],
+    [14, 7, 8, "#55a843"],
+    [23, 10, 7, "#347b34"],
+    [9, 18, 8, "#4fa043"],
+    [19, 20, 9, "#2f7433"],
+    [25, 23, 6, "#58a94a"],
+  ];
+  for (const [cx, cy, r, color] of leaves) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x + cx, y + cy, r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(196, 236, 104, 0.32)";
+    ctx.fillRect(x + cx - 2, y + cy - 3, 3, 2);
+  }
+  ctx.fillStyle = "rgba(9, 30, 17, 0.35)";
+  ctx.fillRect(x, y + 27, TILE, 5);
 }
 
 function drawBase() {
@@ -616,12 +668,19 @@ function drawBase() {
   const plaqueColor = base.alive ? "#d1c27b" : "#5a342d";
   const eagleColor = base.alive ? "#504521" : "#221816";
 
+  ctx.fillStyle = "#14100a";
+  ctx.fillRect(base.x + 5, base.y + 2, 54, 28);
+  ctx.fillStyle = base.alive ? "#3b2b18" : "#1c1210";
+  ctx.fillRect(base.x + 7, base.y + 4, 50, 24);
   ctx.fillStyle = plaqueColor;
   ctx.fillRect(base.x + 8, base.y + 5, 48, 22);
   ctx.fillStyle = shade(plaqueColor, 20);
   ctx.fillRect(base.x + 8, base.y + 5, 48, 3);
   ctx.fillStyle = shade(plaqueColor, -22);
   ctx.fillRect(base.x + 8, base.y + 24, 48, 3);
+  ctx.fillStyle = shade(plaqueColor, -36);
+  ctx.fillRect(base.x + 8, base.y + 5, 2, 22);
+  ctx.fillRect(base.x + 54, base.y + 5, 2, 22);
 
   drawPixelEagle(base.x + 12, base.y + 7, eagleColor, plaqueColor);
 }
@@ -668,30 +727,70 @@ function drawTank(tank) {
 
   const cx = tank.x + tank.w / 2;
   const cy = tank.y + tank.h / 2;
+  const accent = tank.type === "player" ? "#f8e778" : shade(tank.color, 38);
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(dirAngle(tank.dir));
-  ctx.fillStyle = "#191c17";
+
+  ctx.fillStyle = "rgba(0, 0, 0, 0.34)";
+  ctx.fillRect(-13, 11, 26, 4);
+
+  ctx.fillStyle = "#11130f";
   ctx.fillRect(-14, -14, 7, 28);
   ctx.fillRect(7, -14, 7, 28);
+  ctx.fillStyle = "#686b5f";
+  for (let y = -12; y <= 10; y += 5) {
+    ctx.fillRect(-13, y, 5, 2);
+    ctx.fillRect(8, y, 5, 2);
+  }
+
+  ctx.fillStyle = shade(tank.color, -42);
+  ctx.fillRect(-10, -13, 20, 26);
   ctx.fillStyle = tank.color;
   ctx.fillRect(-9, -12, 18, 24);
-  ctx.fillStyle = shade(tank.color, -35);
-  ctx.fillRect(-5, -8, 10, 16);
-  ctx.fillStyle = "#dad6ab";
-  ctx.fillRect(-3, -21, 6, 18);
-  ctx.fillStyle = "#0b0c0a";
-  for (let y = -11; y <= 9; y += 8) {
-    ctx.fillRect(-13, y, 5, 4);
-    ctx.fillRect(8, y, 5, 4);
+  ctx.fillStyle = shade(tank.color, 32);
+  ctx.fillRect(-7, -10, 14, 2);
+  ctx.fillRect(-7, -10, 2, 12);
+  ctx.fillStyle = shade(tank.color, -28);
+  ctx.fillRect(6, -10, 2, 20);
+  ctx.fillRect(-7, 9, 14, 2);
+
+  ctx.fillStyle = shade(tank.color, -55);
+  ctx.fillRect(-5, -6, 10, 12);
+  ctx.fillStyle = accent;
+  ctx.fillRect(-3, -4, 6, 8);
+  ctx.fillStyle = shade(tank.color, -68);
+  ctx.fillRect(-1, -2, 2, 4);
+
+  ctx.fillStyle = "#d8d7c7";
+  ctx.fillRect(-2, -22, 4, 13);
+  ctx.fillStyle = "#8e9185";
+  ctx.fillRect(2, -21, 2, 10);
+  ctx.fillStyle = "#e8e6d1";
+  ctx.fillRect(-3, -23, 6, 3);
+
+  ctx.fillStyle = shade(tank.color, -65);
+  for (const [bx, by] of [
+    [-8, -11],
+    [6, -11],
+    [-8, 9],
+    [6, 9],
+  ]) {
+    ctx.fillRect(bx, by, 2, 2);
   }
+
   ctx.restore();
 }
 
 function drawBullets() {
   for (const bullet of game.bullets) {
-    ctx.fillStyle = bullet.owner === "player" ? "#fff3a5" : "#ff8b66";
+    const glow = bullet.owner === "player" ? "rgba(86, 190, 255, 0.35)" : "rgba(255, 111, 54, 0.35)";
+    ctx.fillStyle = glow;
+    ctx.fillRect(bullet.x - 3, bullet.y - 3, bullet.w + 6, bullet.h + 6);
+    ctx.fillStyle = bullet.owner === "player" ? "#84d9ff" : "#ff9c38";
     ctx.fillRect(bullet.x, bullet.y, bullet.w, bullet.h);
+    ctx.fillStyle = "#fffbd0";
+    ctx.fillRect(bullet.x + 1, bullet.y + 1, Math.max(1, bullet.w - 2), Math.max(1, bullet.h - 2));
   }
 }
 
