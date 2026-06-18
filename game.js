@@ -174,6 +174,10 @@ function applyStageLayout(map, stage) {
       [5, 18],
       [20, 18],
     ]);
+    setTiles(map, 4, [
+      [6, 17],
+      [19, 17],
+    ]);
   }
 
   for (const [x, y] of clearGameplayCells()) {
@@ -184,6 +188,12 @@ function applyStageLayout(map, stage) {
 function addTiles(map, tile, cells) {
   for (const [x, y] of cells) {
     if (map[y]?.[x] === 0) map[y][x] = tile;
+  }
+}
+
+function setTiles(map, tile, cells) {
+  for (const [x, y] of cells) {
+    if (map[y]?.[x] !== undefined) map[y][x] = tile;
   }
 }
 
