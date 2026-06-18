@@ -46,7 +46,7 @@ function makeGame() {
     spawnIndex: 0,
     playerInvincible: 120,
     message: "Tank 1990",
-    map: createMap(),
+    map: createMap(1),
     player: {
       type: "player",
       x: PLAYER_SPAWN_X,
@@ -66,7 +66,7 @@ function makeGame() {
   };
 }
 
-function createMap() {
+function createMap(stage) {
   const map = Array.from({ length: GRID }, () => Array(GRID).fill(0));
 
   for (let y = 2; y < 24; y += 2) {
@@ -138,7 +138,67 @@ function createMap() {
     map[y][x] = 0;
   }
 
+  applyStageLayout(map, stage);
+
   return map;
+}
+
+function applyStageLayout(map, stage) {
+  if (stage === 1) {
+    addTiles(map, 1, [
+      [4, 4],
+      [5, 4],
+      [8, 4],
+      [9, 4],
+      [16, 4],
+      [17, 4],
+      [21, 6],
+      [22, 6],
+      [5, 9],
+      [8, 9],
+      [9, 9],
+      [14, 10],
+      [3, 14],
+      [7, 14],
+      [16, 14],
+      [22, 14],
+      [10, 18],
+      [15, 18],
+      [18, 21],
+      [21, 21],
+    ]);
+  }
+
+  if (stage === 2) {
+    addTiles(map, 4, [
+      [5, 18],
+      [20, 18],
+    ]);
+  }
+
+  for (const [x, y] of clearGameplayCells()) {
+    map[y][x] = 0;
+  }
+}
+
+function addTiles(map, tile, cells) {
+  for (const [x, y] of cells) {
+    if (map[y]?.[x] === 0) map[y][x] = tile;
+  }
+}
+
+function clearGameplayCells() {
+  return [
+    [0, 0],
+    [1, 0],
+    [12, 0],
+    [13, 0],
+    [24, 0],
+    [25, 0],
+    [9, 24],
+    [12, 25],
+    [13, 25],
+  ];
 }
 
 function resetGame() {
@@ -474,7 +534,7 @@ function checkEndState() {
     game.enemiesRemaining = 18 + game.stage * 4;
     game.playerInvincible = 160;
     game.spawnTimer = 120;
-    game.map = createMap();
+    game.map = createMap(game.stage);
     game.player.x = PLAYER_SPAWN_X;
     game.player.y = PLAYER_SPAWN_Y;
     game.base.alive = true;
