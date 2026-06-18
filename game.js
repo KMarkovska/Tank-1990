@@ -34,19 +34,29 @@ let lastTime = 0;
 let accumulator = 0;
 const STEP = 1000 / 60;
 
+function getInitialStage() {
+  const stage = Number.parseInt(new URLSearchParams(window.location.search).get("stage"), 10);
+  return Number.isInteger(stage) && stage > 0 ? stage : 1;
+}
+
+function getEnemyCountForStage(stage) {
+  return stage === 1 ? 18 : 18 + stage * 4;
+}
+
 function makeGame() {
+  const stage = getInitialStage();
   return {
     state: "ready",
-    stage: 1,
+    stage,
     score: 0,
     lives: 3,
-    enemiesRemaining: 18,
+    enemiesRemaining: getEnemyCountForStage(stage),
     enemiesKilled: 0,
     spawnTimer: 0,
     spawnIndex: 0,
     playerInvincible: 120,
     message: "Tank 1990",
-    map: createMap(1),
+    map: createMap(stage),
     player: {
       type: "player",
       x: PLAYER_SPAWN_X,
@@ -180,14 +190,139 @@ function applyStageLayout(map, stage) {
     ]);
   }
 
+  if (stage === 3) {
+    applyReferenceStageLayout(map, 2, "full");
+  }
+
+  if (stage === 4) {
+    applyReferenceStageLayout(map, 3, "light");
+  }
+
+  if (stage === 5) {
+    applyStageFiveLayout(map);
+  }
+
   for (const [x, y] of clearGameplayCells()) {
     map[y][x] = 0;
   }
 }
 
+function applyReferenceStageLayout(map, barrierTile, grassDensity) {
+  clearMap(map);
+
+  for (const x of [2, 6, 10, 14, 18, 22]) {
+    setRect(map, 1, x, 0, 2, 4);
+    setRect(map, barrierTile, x, 4, 2, 1);
+  }
+
+  for (const x of [0, 4, 20, 24]) {
+    setRect(map, 1, x, 7, 2, 3);
+    setRect(map, barrierTile, x, 10, 2, 1);
+  }
+
+  setRect(map, 1, 8, 6, 2, 6);
+  setRect(map, barrierTile, 8, 10, 2, 2);
+  setRect(map, 1, 12, 8, 2, 3);
+  setRect(map, barrierTile, 12, 11, 2, 1);
+  setRect(map, 1, 16, 6, 2, 6);
+  setRect(map, barrierTile, 16, 10, 2, 2);
+
+  if (grassDensity === "full") {
+    setRect(map, 4, 0, 12, 8, 4);
+    setRect(map, 4, 10, 12, 6, 4);
+    setRect(map, 4, 18, 12, 8, 4);
+    setRect(map, 4, 12, 10, 2, 8);
+    setRect(map, 4, 8, 14, 10, 2);
+  } else {
+    setRect(map, 4, 0, 13, 8, 2);
+    setRect(map, 4, 10, 13, 6, 2);
+    setRect(map, 4, 18, 13, 8, 2);
+    setRect(map, 4, 12, 11, 2, 5);
+    setRect(map, 4, 9, 14, 8, 1);
+  }
+
+  setRect(map, 1, 8, 12, 2, 4);
+  setRect(map, 1, 16, 12, 2, 4);
+  setRect(map, 1, 9, 13, 3, 1);
+  setRect(map, 1, 14, 13, 3, 1);
+  setRect(map, 1, 11, 16, 1, 2);
+  setRect(map, 1, 14, 16, 1, 2);
+  setRect(map, barrierTile, 12, 16, 2, 2);
+
+  for (const x of [2, 6, 18, 22]) {
+    setRect(map, 1, x, 19, 2, 5);
+  }
+  setRect(map, 1, 0, 18, 2, 2);
+  setRect(map, barrierTile, 0, 20, 2, 1);
+  setRect(map, 1, 10, 22, 4, 2);
+  setRect(map, 1, 24, 18, 2, 2);
+  setRect(map, barrierTile, 24, 20, 2, 1);
+
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
+function applyStageFiveLayout(map) {
+  clearMap(map);
+
+  setRect(map, 1, 2, 1, 2, 3);
+  setRect(map, 2, 6, 0, 2, 4);
+  setRect(map, 2, 14, 0, 2, 2);
+  setRect(map, 1, 14, 2, 2, 4);
+  setRect(map, 1, 18, 2, 2, 7);
+  setRect(map, 1, 22, 2, 2, 3);
+  setRect(map, 2, 20, 4, 2, 4);
+
+  setRect(map, 4, 0, 7, 2, 4);
+  setRect(map, 1, 6, 5, 2, 10);
+  setRect(map, 2, 12, 7, 2, 3);
+  setRect(map, 2, 24, 7, 2, 2);
+  setRect(map, 1, 22, 7, 2, 2);
+  setRect(map, 4, 20, 7, 2, 6);
+
+  setRect(map, 1, 2, 11, 8, 2);
+  setRect(map, 4, 8, 11, 6, 3);
+  setRect(map, 2, 14, 10, 2, 3);
+  setRect(map, 2, 6, 13, 2, 4);
+  setRect(map, 1, 10, 13, 2, 7);
+  setRect(map, 1, 14, 13, 2, 7);
+  setRect(map, 1, 18, 13, 2, 2);
+  setRect(map, 1, 22, 11, 2, 7);
+
+  setRect(map, 1, 2, 16, 2, 9);
+  setRect(map, 1, 6, 17, 2, 6);
+  setRect(map, 1, 10, 19, 6, 3);
+  setRect(map, 1, 18, 18, 4, 2);
+  setRect(map, 2, 20, 18, 2, 2);
+  setRect(map, 1, 18, 22, 2, 3);
+  setRect(map, 1, 22, 22, 2, 3);
+  setRect(map, 1, 6, 25, 2, 1);
+
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
 function addTiles(map, tile, cells) {
   for (const [x, y] of cells) {
     if (map[y]?.[x] === 0) map[y][x] = tile;
+  }
+}
+
+function clearMap(map) {
+  for (const row of map) row.fill(0);
+}
+
+function setRect(map, tile, x, y, width, height) {
+  for (let yy = y; yy < y + height; yy += 1) {
+    for (let xx = x; xx < x + width; xx += 1) {
+      if (map[yy]?.[xx] !== undefined) map[yy][xx] = tile;
+    }
   }
 }
 
