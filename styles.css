@@ -243,8 +243,12 @@ button {
 .touch-button::before {
   content: "";
   position: absolute;
-  inset: 16px;
-  border-style: solid;
+  left: 50%;
+  top: 50%;
+  width: 38%;
+  height: 38%;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
 }
 
 .touch-button.up {
@@ -272,23 +276,23 @@ button {
 }
 
 .touch-button.up::before {
-  border-width: 0 10px 16px;
-  border-color: transparent transparent var(--accent);
+  top: 40%;
+  clip-path: polygon(50% 10%, 90% 86%, 10% 86%);
 }
 
 .touch-button.down::before {
-  border-width: 16px 10px 0;
-  border-color: var(--accent) transparent transparent;
+  top: 60%;
+  clip-path: polygon(10% 14%, 90% 14%, 50% 90%);
 }
 
 .touch-button.left::before {
-  border-width: 10px 16px 10px 0;
-  border-color: transparent var(--accent) transparent transparent;
+  left: 40%;
+  clip-path: polygon(10% 50%, 86% 10%, 86% 90%);
 }
 
 .touch-button.right::before {
-  border-width: 10px 0 10px 16px;
-  border-color: transparent transparent transparent var(--accent);
+  left: 60%;
+  clip-path: polygon(14% 10%, 90% 50%, 14% 90%);
 }
 
 .fire-button {
