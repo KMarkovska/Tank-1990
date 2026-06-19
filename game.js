@@ -2041,10 +2041,10 @@ function spawnBaseShieldPickup() {
   game.pickups = [
     {
       type: "baseShield",
-      x: cell.x * TILE + 6,
-      y: cell.y * TILE + 6,
-      w: 20,
-      h: 20,
+      x: cell.x * TILE + 4,
+      y: cell.y * TILE + 4,
+      w: 24,
+      h: 24,
     },
   ];
   addSparks(cell.x * TILE + 16, cell.y * TILE + 16, "#8cb7ff", 18);
@@ -2078,7 +2078,7 @@ function pickupCellIsOpen(x, y) {
     return false;
   }
 
-  const rect = { x: x * TILE + 6, y: y * TILE + 6, w: 20, h: 20 };
+  const rect = { x: x * TILE + 4, y: y * TILE + 4, w: 24, h: 24 };
   if (rectsOverlap(rect, game.player) || rectsOverlap(rect, game.base)) return false;
   return !game.enemies.some((enemy) => rectsOverlap(rect, enemy));
 }
@@ -2446,19 +2446,38 @@ function drawBaseShieldPickup(pickup) {
   ctx.fillRect(pickup.x - 3, pickup.y - 3, pickup.w + 6, pickup.h + 6);
   ctx.globalAlpha = 1;
 
-  ctx.fillStyle = "#1c2750";
+  ctx.fillStyle = "#11182f";
   ctx.fillRect(pickup.x, pickup.y, pickup.w, pickup.h);
-  ctx.fillStyle = "#355fc4";
+  ctx.fillStyle = "#2f62c9";
   ctx.fillRect(pickup.x + 2, pickup.y + 2, pickup.w - 4, pickup.h - 4);
-  ctx.fillStyle = "#eef4ff";
-  ctx.fillRect(pickup.x + 4, pickup.y + 4, 12, 12);
-  ctx.fillStyle = "#21428c";
-  ctx.fillRect(pickup.x + 6, pickup.y + 7, 3, 8);
-  ctx.fillRect(pickup.x + 9, pickup.y + 5, 4, 3);
-  ctx.fillRect(pickup.x + 10, pickup.y + 10, 4, 3);
+  ctx.fillStyle = "#7fb1ff";
+  ctx.fillRect(pickup.x + 3, pickup.y + 3, pickup.w - 6, 2);
+  ctx.fillRect(pickup.x + 3, pickup.y + 3, 2, pickup.h - 6);
+
+  ctx.fillStyle = "#c7cbc4";
+  for (const [x, y] of [
+    [5, 5],
+    [13, 5],
+    [5, 13],
+    [13, 13],
+  ]) {
+    ctx.fillRect(pickup.x + x, pickup.y + y, 6, 6);
+    ctx.fillStyle = "#788078";
+    ctx.fillRect(pickup.x + x + 1, pickup.y + y + 1, 4, 4);
+    ctx.fillStyle = "#e5e8df";
+    ctx.fillRect(pickup.x + x + 1, pickup.y + y + 1, 3, 1);
+    ctx.fillRect(pickup.x + x + 1, pickup.y + y + 1, 1, 3);
+    ctx.fillStyle = "#c7cbc4";
+  }
+
+  ctx.fillStyle = "#d7c46f";
+  ctx.fillRect(pickup.x + 8, pickup.y + 8, 8, 8);
+  ctx.fillStyle = "#4c3f1c";
+  ctx.fillRect(pickup.x + 9, pickup.y + 10, 6, 2);
+  ctx.fillRect(pickup.x + 10, pickup.y + 12, 4, 3);
   ctx.fillStyle = "#ffffff";
-  ctx.fillRect(pickup.x + 14, pickup.y + 3, 3, 3);
-  ctx.fillRect(pickup.x + 3, pickup.y + 15, 3, 3);
+  ctx.fillRect(pickup.x + 18, pickup.y + 4, 2, 2);
+  ctx.fillRect(pickup.x + 4, pickup.y + 18, 2, 2);
   ctx.restore();
 }
 
