@@ -17,8 +17,10 @@ const stageSelects = [...document.querySelectorAll("[data-stage-select]")];
 const TILE = 32;
 const GRID = 26;
 const WORLD = TILE * GRID;
-const MAX_SELECTABLE_STAGE = 15;
-const MAX_ENEMIES_PER_STAGE = 50;
+const MAX_SELECTABLE_STAGE = 25;
+const MAX_ENEMIES_PER_STAGE = 30;
+const SPECIAL_ENEMY_COUNT = 8;
+const BASE_SHIELD_TICKS = 60 * 60;
 const PLAYER_SPAWN_X = 9 * TILE;
 const PLAYER_SPAWN_Y = 24 * TILE;
 const DIRS = {
@@ -28,6 +30,14 @@ const DIRS = {
   left: { x: -1, y: 0 },
 };
 const OPPOSITE = { up: "down", right: "left", down: "up", left: "right" };
+const BASE_SHIELD_CELLS = [
+  [11, 24],
+  [12, 24],
+  [13, 24],
+  [14, 24],
+  [11, 25],
+  [14, 25],
+];
 
 const keys = new Set();
 const touchDirs = new Set();
@@ -54,16 +64,21 @@ function getEnemyCountForStage(stage) {
 
 function makeGame() {
   const stage = selectedStage;
+  const enemyCount = getEnemyCountForStage(stage);
   return {
     state: "ready",
     stage,
     score: 0,
     lives: 3,
-    enemiesRemaining: getEnemyCountForStage(stage),
+    enemiesRemaining: enemyCount,
     enemiesKilled: 0,
+    totalEnemies: enemyCount,
+    specialEnemySlots: makeSpecialEnemySlots(enemyCount),
     spawnTimer: 0,
     spawnIndex: 0,
+    tick: 0,
     playerInvincible: 120,
+    baseShieldTimer: 0,
     message: "Tank 1990",
     map: createMap(stage),
     player: {
@@ -80,9 +95,19 @@ function makeGame() {
     },
     enemies: [],
     bullets: [],
+    pickups: [],
     sparks: [],
     base: { x: 12 * TILE, y: 25 * TILE, w: TILE * 2, h: TILE, alive: true },
   };
+}
+
+function makeSpecialEnemySlots(enemyCount) {
+  const count = Math.min(SPECIAL_ENEMY_COUNT, enemyCount);
+  const slots = new Set();
+  for (let i = 1; i <= count; i += 1) {
+    slots.add(Math.round((i * (enemyCount + 1)) / (count + 1)));
+  }
+  return slots;
 }
 
 function createMap(stage) {
@@ -222,6 +247,46 @@ function applyStageLayout(map, stage) {
 
   if (stage === 15) {
     applyStageFifteenLayout(map);
+  }
+
+  if (stage === 16) {
+    applyStageSixteenLayout(map);
+  }
+
+  if (stage === 17) {
+    applyStageSeventeenLayout(map);
+  }
+
+  if (stage === 18) {
+    applyStageEighteenLayout(map);
+  }
+
+  if (stage === 19) {
+    applyStageNineteenLayout(map);
+  }
+
+  if (stage === 20) {
+    applyStageTwentyLayout(map);
+  }
+
+  if (stage === 21) {
+    applyStageTwentyOneLayout(map);
+  }
+
+  if (stage === 22) {
+    applyStageTwentyTwoLayout(map);
+  }
+
+  if (stage === 23) {
+    applyStageTwentyThreeLayout(map);
+  }
+
+  if (stage === 24) {
+    applyStageTwentyFourLayout(map);
+  }
+
+  if (stage === 25) {
+    applyStageTwentyFiveLayout(map);
   }
 
   for (const [x, y] of clearGameplayCells()) {
@@ -1028,6 +1093,576 @@ function applyStageFifteenLayout(map) {
   ]);
 }
 
+function applyStageSixteenLayout(map) {
+  clearMap(map);
+
+  setRect(map, 4, 14, 0, 4, 2);
+  setRect(map, 1, 18, 1, 2, 1);
+  setRect(map, 4, 20, 0, 4, 4);
+  setRect(map, 1, 18, 3, 2, 1);
+
+  setRect(map, 2, 2, 4, 2, 4);
+  setRect(map, 1, 4, 4, 10, 1);
+  setRect(map, 1, 6, 5, 2, 1);
+  setRect(map, 1, 10, 5, 2, 1);
+  setRect(map, 1, 4, 6, 10, 1);
+  setRect(map, 2, 14, 4, 2, 4);
+
+  setRect(map, 2, 4, 8, 2, 4);
+  setRect(map, 4, 6, 8, 6, 4);
+  setRect(map, 1, 12, 9, 3, 3);
+  setRect(map, 1, 14, 8, 1, 4);
+
+  setRect(map, 2, 2, 12, 2, 4);
+  setRect(map, 1, 4, 13, 10, 1);
+  setRect(map, 1, 6, 14, 2, 1);
+  setRect(map, 1, 10, 14, 2, 1);
+  setRect(map, 1, 4, 15, 10, 1);
+  setRect(map, 2, 14, 12, 2, 4);
+
+  setRect(map, 1, 17, 8, 3, 4);
+  setRect(map, 1, 22, 6, 2, 4);
+  setRect(map, 1, 24, 7, 2, 2);
+
+  setRect(map, 4, 2, 18, 6, 4);
+  setRect(map, 2, 0, 18, 2, 4);
+  setRect(map, 3, 10, 18, 4, 2);
+  setRect(map, 2, 10, 20, 4, 2);
+
+  setRect(map, 4, 14, 16, 4, 6);
+  setRect(map, 2, 15, 20, 1, 1);
+  setRect(map, 1, 16, 22, 2, 2);
+
+  setRect(map, 3, 18, 16, 6, 4);
+  setRect(map, 2, 20, 18, 4, 2);
+  setRect(map, 2, 20, 20, 2, 2);
+  setRect(map, 1, 24, 16, 2, 4);
+  setRect(map, 1, 24, 24, 2, 2);
+
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
+function applyStageSeventeenLayout(map) {
+  clearMap(map);
+
+  setRect(map, 2, 0, 2, 4, 2);
+  setRect(map, 3, 0, 4, 4, 2);
+  setRect(map, 2, 0, 6, 2, 4);
+  setRect(map, 4, 0, 10, 4, 4);
+  setRect(map, 3, 0, 14, 2, 4);
+  setRect(map, 2, 0, 22, 2, 4);
+
+  setRect(map, 1, 4, 4, 4, 4);
+  setRect(map, 2, 8, 6, 4, 4);
+  setRect(map, 1, 6, 10, 4, 4);
+  setRect(map, 2, 4, 14, 4, 4);
+
+  setRect(map, 4, 12, 2, 4, 4);
+  setRect(map, 3, 12, 10, 4, 2);
+  setRect(map, 2, 12, 12, 4, 2);
+  setRect(map, 1, 14, 14, 4, 4);
+  setRect(map, 1, 8, 18, 2, 4);
+  setRect(map, 3, 10, 18, 2, 4);
+
+  setRect(map, 1, 16, 6, 4, 4);
+  setRect(map, 1, 18, 4, 2, 2);
+  setRect(map, 3, 20, 8, 2, 2);
+  setRect(map, 4, 22, 8, 2, 2);
+  setRect(map, 2, 20, 10, 2, 2);
+  setRect(map, 1, 22, 10, 2, 2);
+
+  setRect(map, 4, 12, 0, 4, 1);
+  setRect(map, 1, 22, 2, 4, 4);
+  setRect(map, 1, 24, 16, 2, 2);
+  setRect(map, 2, 24, 18, 2, 2);
+  setRect(map, 2, 20, 20, 4, 4);
+  setRect(map, 4, 18, 18, 2, 2);
+
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
+function applyStageEighteenLayout(map) {
+  clearMap(map);
+
+  setRect(map, 3, 0, 2, 8, 2);
+  setRect(map, 4, 0, 6, 2, 4);
+  setRect(map, 3, 2, 6, 2, 2);
+  setRect(map, 1, 4, 6, 2, 2);
+  setRect(map, 3, 6, 6, 2, 2);
+  setRect(map, 4, 8, 6, 2, 4);
+
+  setRect(map, 3, 0, 10, 8, 2);
+  setRect(map, 1, 4, 12, 2, 2);
+  setRect(map, 2, 4, 14, 4, 1);
+  setRect(map, 4, 8, 12, 2, 4);
+  setRect(map, 2, 8, 16, 2, 2);
+  setRect(map, 1, 2, 16, 2, 4);
+  setRect(map, 2, 0, 18, 2, 2);
+  setRect(map, 1, 2, 20, 4, 2);
+
+  setRect(map, 3, 10, 0, 2, 8);
+  setRect(map, 3, 10, 6, 6, 2);
+  setRect(map, 1, 10, 8, 2, 2);
+  setRect(map, 4, 12, 8, 2, 6);
+  setRect(map, 3, 14, 10, 4, 2);
+  setRect(map, 2, 12, 14, 4, 2);
+
+  setRect(map, 1, 10, 12, 2, 4);
+  setRect(map, 1, 10, 16, 4, 3);
+  setRect(map, 1, 8, 18, 2, 6);
+  setRect(map, 1, 10, 18, 4, 2);
+  setRect(map, 4, 14, 16, 4, 3);
+  setRect(map, 1, 18, 16, 2, 4);
+
+  setRect(map, 3, 14, 2, 4, 2);
+  setRect(map, 3, 20, 0, 4, 2);
+  setRect(map, 4, 20, 2, 2, 4);
+  setRect(map, 3, 22, 4, 4, 2);
+  setRect(map, 1, 18, 6, 4, 6);
+  setRect(map, 4, 20, 8, 2, 4);
+  setRect(map, 3, 22, 10, 2, 2);
+  setRect(map, 2, 20, 12, 4, 1);
+
+  setRect(map, 1, 18, 18, 4, 4);
+  setRect(map, 2, 23, 16, 1, 2);
+  setRect(map, 1, 24, 16, 2, 4);
+  setRect(map, 2, 20, 22, 4, 3);
+  setRect(map, 1, 22, 24, 2, 2);
+
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
+function applyStageNineteenLayout(map) {
+  clearMap(map);
+
+  setRect(map, 4, 2, 0, 4, 4);
+  setRect(map, 4, 4, 4, 2, 4);
+  setRect(map, 1, 6, 3, 2, 2);
+  setRect(map, 1, 2, 5, 2, 2);
+  setRect(map, 1, 4, 8, 2, 2);
+  setRect(map, 1, 0, 9, 2, 2);
+
+  setRect(map, 1, 2, 14, 6, 2);
+  setRect(map, 4, 2, 16, 2, 4);
+  setRect(map, 1, 4, 16, 2, 8);
+  setRect(map, 3, 8, 14, 2, 10);
+  setRect(map, 1, 2, 23, 7, 2);
+  setRect(map, 2, 0, 24, 2, 2);
+  setRect(map, 4, 2, 25, 6, 1);
+
+  setRect(map, 2, 6, 9, 4, 2);
+  setRect(map, 1, 10, 7, 2, 4);
+  setRect(map, 1, 12, 6, 2, 2);
+  setRect(map, 2, 12, 8, 2, 2);
+  setRect(map, 3, 12, 10, 2, 8);
+  setRect(map, 3, 12, 20, 2, 3);
+
+  setRect(map, 4, 16, 0, 4, 2);
+  setRect(map, 4, 16, 2, 2, 5);
+  setRect(map, 1, 14, 1, 2, 2);
+  setRect(map, 1, 18, 4, 2, 2);
+  setRect(map, 1, 14, 6, 4, 2);
+  setRect(map, 2, 12, 6, 2, 2);
+
+  setRect(map, 1, 14, 11, 2, 6);
+  setRect(map, 2, 16, 11, 2, 2);
+  setRect(map, 1, 18, 11, 2, 2);
+  setRect(map, 1, 18, 13, 2, 8);
+  setRect(map, 4, 16, 16, 2, 2);
+  setRect(map, 1, 12, 18, 8, 2);
+  setRect(map, 3, 12, 20, 2, 3);
+
+  setRect(map, 1, 21, 0, 2, 4);
+  setRect(map, 2, 24, 4, 2, 2);
+  setRect(map, 1, 24, 6, 2, 3);
+  setRect(map, 1, 20, 8, 2, 2);
+  setRect(map, 2, 20, 10, 2, 1);
+  setRect(map, 1, 22, 14, 4, 2);
+  setRect(map, 1, 24, 17, 2, 3);
+  setRect(map, 1, 22, 20, 4, 2);
+
+  setRect(map, 4, 16, 23, 4, 2);
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
+function applyStageTwentyLayout(map) {
+  clearMap(map);
+
+  setRect(map, 1, 4, 0, 2, 4);
+  setRect(map, 1, 0, 2, 6, 2);
+  setRect(map, 2, 6, 3, 2, 1);
+  setRect(map, 2, 0, 7, 4, 1);
+  setRect(map, 2, 0, 10, 2, 2);
+  setRect(map, 2, 2, 11, 6, 1);
+  setRect(map, 3, 0, 12, 2, 2);
+  setRect(map, 3, 0, 16, 8, 2);
+  setRect(map, 5, 0, 18, 2, 2);
+  setRect(map, 1, 2, 18, 4, 6);
+  setRect(map, 2, 6, 22, 4, 2);
+
+  setRect(map, 4, 8, 2, 2, 6);
+  setRect(map, 4, 8, 8, 6, 10);
+  setRect(map, 4, 10, 4, 2, 4);
+  setRect(map, 4, 10, 18, 4, 2);
+  setRect(map, 4, 12, 20, 2, 1);
+  setRect(map, 2, 12, 10, 2, 2);
+  setRect(map, 2, 12, 16, 2, 2);
+
+  setRect(map, 3, 10, 2, 6, 2);
+  setRect(map, 1, 14, 4, 4, 5);
+  setRect(map, 1, 14, 9, 4, 5);
+  setRect(map, 1, 14, 14, 4, 4);
+  setRect(map, 1, 10, 18, 8, 3);
+  setRect(map, 2, 16, 21, 2, 2);
+  setRect(map, 1, 11, 24, 4, 1);
+
+  setRect(map, 5, 16, 0, 2, 4);
+  setRect(map, 5, 16, 2, 4, 2);
+  setRect(map, 5, 18, 4, 2, 12);
+  setRect(map, 1, 18, 0, 6, 2);
+  setRect(map, 3, 20, 4, 2, 8);
+  setRect(map, 4, 22, 4, 2, 2);
+  setRect(map, 4, 22, 8, 2, 2);
+  setRect(map, 4, 20, 12, 4, 2);
+  setRect(map, 2, 20, 16, 2, 2);
+  setRect(map, 2, 18, 23, 2, 2);
+  setRect(map, 2, 20, 24, 2, 2);
+
+  setRect(map, 1, 24, 0, 2, 5);
+  setRect(map, 1, 24, 5, 2, 5);
+  setRect(map, 1, 24, 10, 2, 5);
+  setRect(map, 1, 22, 18, 4, 2);
+  setRect(map, 1, 24, 23, 2, 2);
+
+  setTiles(map, 1, [
+    [8, 20],
+    [9, 20],
+    [18, 6],
+    [18, 7],
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
+function applyStageTwentyOneLayout(map) {
+  clearMap(map);
+
+  setRect(map, 2, 0, 0, 2, 2);
+  setRect(map, 5, 3, 0, 2, 9);
+  setRect(map, 2, 5, 2, 4, 1);
+  setRect(map, 4, 0, 6, 4, 2);
+  setRect(map, 1, 0, 8, 2, 2);
+  setRect(map, 4, 0, 10, 2, 2);
+  setRect(map, 2, 0, 12, 2, 2);
+  setRect(map, 4, 0, 14, 2, 3);
+  setRect(map, 5, 2, 14, 4, 2);
+  setRect(map, 1, 0, 17, 4, 3);
+  setRect(map, 1, 0, 22, 5, 2);
+
+  setRect(map, 4, 6, 6, 2, 6);
+  setRect(map, 1, 8, 6, 2, 2);
+  setRect(map, 2, 6, 12, 2, 3);
+  setRect(map, 5, 5, 15, 4, 3);
+  setRect(map, 4, 6, 18, 2, 2);
+  setRect(map, 4, 8, 20, 5, 2);
+  setRect(map, 1, 8, 22, 2, 3);
+
+  setRect(map, 1, 8, 8, 8, 8);
+  setRect(map, 1, 10, 6, 4, 2);
+  setRect(map, 1, 12, 16, 4, 4);
+  setRect(map, 1, 10, 20, 4, 2);
+  setRect(map, 5, 12, 2, 2, 3);
+  setRect(map, 5, 13, 4, 2, 2);
+  setRect(map, 2, 12, 6, 2, 1);
+  setRect(map, 2, 15, 7, 2, 2);
+
+  setRect(map, 5, 14, 8, 6, 4);
+  setRect(map, 5, 16, 12, 4, 4);
+  setRect(map, 2, 20, 10, 2, 2);
+  setRect(map, 2, 18, 15, 2, 2);
+  setRect(map, 1, 16, 2, 2, 3);
+  setRect(map, 4, 18, 0, 2, 5);
+  setRect(map, 4, 18, 5, 4, 2);
+  setRect(map, 1, 18, 7, 8, 3);
+  setRect(map, 1, 20, 10, 4, 2);
+
+  setRect(map, 5, 22, 12, 2, 2);
+  setRect(map, 2, 23, 14, 2, 2);
+  setRect(map, 1, 21, 15, 4, 3);
+  setRect(map, 1, 22, 19, 4, 2);
+  setRect(map, 1, 18, 21, 2, 3);
+  setRect(map, 2, 18, 24, 2, 2);
+  setRect(map, 2, 23, 2, 2, 1);
+  setRect(map, 5, 24, 11, 2, 2);
+  setRect(map, 2, 24, 16, 2, 2);
+
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [5, 24],
+    [10, 24],
+    [11, 25],
+    [14, 25],
+    [17, 25],
+  ]);
+}
+
+function applyStageTwentyTwoLayout(map) {
+  clearMap(map);
+
+  setRect(map, 1, 0, 5, 2, 1);
+  setRect(map, 3, 2, 4, 2, 2);
+  setRect(map, 4, 4, 4, 3, 4);
+  setRect(map, 2, 5, 2, 3, 2);
+  setRect(map, 1, 0, 8, 2, 2);
+  setRect(map, 2, 0, 10, 3, 3);
+  setRect(map, 4, 0, 13, 2, 2);
+  setRect(map, 2, 1, 15, 1, 2);
+  setRect(map, 1, 0, 19, 5, 2);
+  setRect(map, 2, 3, 21, 3, 2);
+
+  setRect(map, 4, 6, 6, 2, 4);
+  setRect(map, 2, 5, 10, 1, 2);
+  setRect(map, 1, 6, 10, 8, 2);
+  setRect(map, 1, 8, 8, 2, 2);
+  setRect(map, 2, 12, 10, 2, 2);
+  setRect(map, 1, 6, 12, 2, 4);
+  setRect(map, 1, 8, 12, 2, 8);
+  setRect(map, 1, 6, 18, 2, 2);
+  setRect(map, 2, 4, 20, 3, 2);
+  setRect(map, 2, 5, 22, 1, 1);
+
+  setRect(map, 2, 9, 6, 1, 4);
+  setRect(map, 1, 10, 7, 2, 3);
+  setRect(map, 1, 10, 12, 4, 6);
+  setRect(map, 3, 12, 14, 2, 4);
+  setRect(map, 1, 12, 18, 3, 2);
+  setRect(map, 4, 14, 8, 4, 2);
+  setRect(map, 1, 14, 10, 4, 2);
+  setRect(map, 4, 14, 12, 2, 2);
+
+  setRect(map, 2, 14, 4, 2, 2);
+  setRect(map, 1, 16, 4, 4, 4);
+  setRect(map, 1, 18, 0, 4, 2);
+  setRect(map, 2, 18, 2, 2, 2);
+  setRect(map, 1, 18, 8, 2, 4);
+  setRect(map, 2, 20, 8, 2, 2);
+  setRect(map, 2, 18, 10, 2, 5);
+  setRect(map, 2, 16, 12, 3, 6);
+  setRect(map, 3, 14, 14, 2, 5);
+  setRect(map, 1, 14, 19, 2, 2);
+
+  setRect(map, 2, 22, 0, 2, 1);
+  setRect(map, 1, 23, 0, 2, 5);
+  setRect(map, 2, 21, 8, 2, 2);
+  setRect(map, 1, 22, 8, 4, 2);
+  setRect(map, 2, 22, 10, 2, 3);
+  setRect(map, 4, 24, 12, 2, 4);
+  setRect(map, 2, 24, 16, 2, 2);
+  setRect(map, 2, 16, 22, 4, 1);
+  setRect(map, 1, 18, 22, 2, 4);
+
+  setRect(map, 1, 10, 22, 5, 2);
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
+function applyStageTwentyThreeLayout(map) {
+  clearMap(map);
+
+  setRect(map, 2, 1, 0, 2, 1);
+  setRect(map, 1, 2, 1, 4, 4);
+  setRect(map, 2, 0, 4, 2, 2);
+  setRect(map, 3, 2, 6, 4, 2);
+  setRect(map, 1, 0, 8, 2, 2);
+  setRect(map, 1, 2, 8, 2, 8);
+  setRect(map, 1, 0, 16, 2, 4);
+  setRect(map, 1, 2, 22, 4, 2);
+
+  setRect(map, 5, 4, 8, 4, 7);
+  setRect(map, 2, 2, 14, 4, 3);
+  setRect(map, 1, 6, 14, 2, 3);
+  setRect(map, 1, 8, 10, 4, 2);
+  setRect(map, 4, 8, 10, 2, 5);
+  setRect(map, 1, 10, 9, 2, 6);
+  setRect(map, 1, 8, 17, 4, 2);
+  setRect(map, 1, 8, 19, 2, 2);
+
+  setRect(map, 2, 8, 7, 2, 2);
+  setRect(map, 3, 12, 4, 4, 2);
+  setRect(map, 1, 12, 6, 2, 4);
+  setRect(map, 4, 12, 10, 2, 4);
+  setRect(map, 5, 14, 8, 2, 9);
+  setRect(map, 2, 12, 16, 2, 2);
+  setRect(map, 1, 13, 17, 4, 2);
+
+  setRect(map, 1, 16, 0, 2, 4);
+  setRect(map, 2, 18, 0, 2, 2);
+  setRect(map, 1, 16, 4, 4, 2);
+  setRect(map, 2, 20, 4, 2, 2);
+  setRect(map, 2, 18, 10, 2, 2);
+  setRect(map, 2, 18, 14, 2, 2);
+  setRect(map, 1, 20, 12, 4, 3);
+  setRect(map, 1, 18, 17, 6, 2);
+
+  setRect(map, 4, 20, 0, 4, 3);
+  setRect(map, 1, 22, 3, 4, 4);
+  setRect(map, 2, 24, 7, 2, 1);
+  setRect(map, 4, 22, 8, 2, 2);
+  setRect(map, 1, 24, 8, 2, 4);
+  setRect(map, 1, 20, 12, 2, 2);
+  setRect(map, 1, 22, 14, 4, 4);
+
+  setRect(map, 1, 17, 20, 2, 3);
+  setRect(map, 2, 18, 23, 2, 3);
+  setRect(map, 1, 20, 23, 2, 2);
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+    [22, 25],
+  ]);
+}
+
+function applyStageTwentyFourLayout(map) {
+  clearMap(map);
+
+  setRect(map, 4, 6, 0, 4, 2);
+  setRect(map, 1, 10, 1, 2, 1);
+  setRect(map, 1, 0, 4, 6, 2);
+  setTiles(map, 1, [
+    [0, 6],
+    [3, 6],
+    [5, 6],
+  ]);
+  setRect(map, 2, 6, 4, 2, 5);
+  setRect(map, 4, 0, 8, 4, 4);
+  setRect(map, 1, 4, 9, 2, 4);
+  setRect(map, 2, 6, 13, 2, 4);
+  setRect(map, 1, 0, 13, 6, 2);
+  setTiles(map, 1, [
+    [0, 15],
+    [3, 15],
+    [5, 15],
+  ]);
+
+  setRect(map, 1, 9, 8, 3, 4);
+  setRect(map, 1, 9, 13, 3, 3);
+  setRect(map, 1, 14, 6, 2, 3);
+  setRect(map, 1, 14, 8, 8, 2);
+  setRect(map, 1, 18, 14, 2, 4);
+  setRect(map, 1, 16, 17, 3, 3);
+
+  setRect(map, 4, 14, 0, 4, 1);
+  setRect(map, 1, 10, 3, 2, 1);
+  setRect(map, 4, 12, 0, 2, 4);
+  setRect(map, 1, 14, 3, 2, 1);
+  setRect(map, 4, 22, 16, 4, 3);
+  setRect(map, 4, 22, 19, 2, 1);
+  setRect(map, 2, 20, 16, 2, 4);
+
+  setRect(map, 2, 22, 3, 2, 5);
+  setRect(map, 1, 24, 3, 2, 2);
+  setRect(map, 2, 24, 6, 2, 4);
+  setRect(map, 2, 22, 10, 2, 3);
+  setRect(map, 1, 24, 10, 2, 3);
+  setRect(map, 2, 20, 18, 2, 4);
+  setRect(map, 1, 22, 20, 4, 1);
+
+  setRect(map, 3, 2, 18, 4, 2);
+  setRect(map, 5, 2, 20, 4, 4);
+  setRect(map, 2, 4, 24, 2, 2);
+  setRect(map, 4, 6, 16, 4, 2);
+  setRect(map, 4, 6, 18, 2, 4);
+  setRect(map, 1, 8, 21, 2, 3);
+  setRect(map, 3, 10, 16, 6, 3);
+  setRect(map, 2, 12, 18, 3, 2);
+  setRect(map, 5, 12, 20, 4, 3);
+  setRect(map, 2, 16, 20, 2, 3);
+
+  setRect(map, 1, 10, 24, 5, 1);
+  setRect(map, 1, 18, 24, 2, 2);
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+    [18, 25],
+  ]);
+}
+
+function applyStageTwentyFiveLayout(map) {
+  clearMap(map);
+
+  setRect(map, 4, 0, 4, 2, 4);
+  setRect(map, 1, 2, 2, 4, 4);
+  setRect(map, 1, 2, 8, 2, 2);
+  setRect(map, 2, 0, 12, 2, 3);
+  setRect(map, 5, 0, 14, 2, 3);
+  setRect(map, 1, 2, 13, 2, 4);
+  setRect(map, 4, 2, 16, 4, 4);
+  setRect(map, 2, 4, 18, 2, 1);
+  setRect(map, 1, 4, 21, 4, 2);
+  setRect(map, 2, 4, 23, 2, 2);
+  setRect(map, 4, 6, 24, 2, 2);
+
+  setRect(map, 5, 6, 4, 4, 4);
+  setRect(map, 1, 6, 10, 2, 2);
+  setRect(map, 2, 8, 9, 2, 1);
+  setRect(map, 3, 6, 11, 4, 4);
+  setRect(map, 4, 10, 10, 2, 4);
+
+  setRect(map, 3, 10, 2, 6, 3);
+  setRect(map, 5, 12, 10, 4, 4);
+  setRect(map, 1, 12, 16, 2, 2);
+  setRect(map, 2, 12, 18, 2, 2);
+  setRect(map, 1, 11, 21, 2, 2);
+  setRect(map, 1, 10, 23, 5, 1);
+
+  setRect(map, 1, 18, 0, 2, 2);
+  setRect(map, 1, 17, 6, 4, 5);
+  setRect(map, 1, 16, 10, 3, 2);
+  setRect(map, 2, 18, 13, 2, 2);
+  setRect(map, 1, 17, 18, 2, 3);
+  setRect(map, 1, 18, 20, 3, 2);
+  setRect(map, 2, 19, 22, 2, 2);
+  setRect(map, 4, 20, 24, 2, 2);
+
+  setRect(map, 5, 19, 4, 4, 4);
+  setRect(map, 1, 22, 8, 2, 2);
+  setRect(map, 5, 24, 8, 2, 4);
+  setRect(map, 2, 22, 12, 2, 2);
+  setRect(map, 1, 23, 13, 3, 2);
+  setRect(map, 2, 24, 14, 2, 4);
+  setRect(map, 4, 22, 16, 2, 4);
+  setRect(map, 1, 24, 22, 2, 4);
+
+  setRect(map, 2, 12, 24, 3, 1);
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+    [18, 25],
+  ]);
+}
+
 function addTiles(map, tile, cells) {
   for (const [x, y] of cells) {
     if (map[y]?.[x] === 0) map[y][x] = tile;
@@ -1139,6 +1774,7 @@ function syncHud() {
 function update() {
   if (!game || game.state !== "playing") return;
 
+  game.tick += 1;
   game.spawnTimer -= 1;
   if (game.spawnTimer <= 0 && game.enemiesRemaining > 0 && game.enemies.length < 4) {
     spawnEnemy();
@@ -1149,6 +1785,7 @@ function update() {
   updatePlayer();
   for (const enemy of game.enemies) updateEnemy(enemy);
   updateBullets();
+  updateBaseShield();
   updateSparks();
   cleanup();
   checkEndState();
@@ -1166,6 +1803,8 @@ function updatePlayer() {
     player.dir = dir;
     moveEntity(player, DIRS[dir].x * player.speed, DIRS[dir].y * player.speed);
   }
+
+  collectPickups();
 
   if ((keys.has(" ") || keys.has("Enter")) && player.cooldown <= 0) {
     fire(player);
@@ -1191,6 +1830,8 @@ function spawnEnemy() {
     { x: 24 * TILE, y: 0 },
   ];
   const point = points[game.spawnIndex % points.length];
+  const spawnNumber = game.spawnIndex + 1;
+  const isSpecial = game.specialEnemySlots.has(spawnNumber);
   game.spawnIndex += 1;
   const enemy = {
     type: "enemy",
@@ -1203,6 +1844,7 @@ function spawnEnemy() {
     cooldown: 70,
     turnTimer: 30,
     alive: true,
+    special: isSpecial,
     color: game.spawnIndex % 3 === 0 ? "#91c66d" : "#d88349",
   };
   game.enemies.push(enemy);
@@ -1335,6 +1977,7 @@ function updateBullets() {
           enemy.dead = true;
           game.score += 100;
           game.enemiesKilled += 1;
+          handleEnemyDestroyed(enemy);
           addSparks(enemy.x + 14, enemy.y + 14, "#f4c23c", 24);
           break;
         }
@@ -1358,7 +2001,7 @@ function hitMap(bullet) {
   const cells = touchedCells(bullet);
   for (const cell of cells) {
     const tile = game.map[cell.y]?.[cell.x];
-    if (!tile || tile === 3 || tile === 4) continue;
+    if (!tile || tile === 3 || tile === 4 || tile === 5) continue;
     if (tile === 1) {
       game.map[cell.y][cell.x] = 0;
       bullet.dead = true;
@@ -1387,6 +2030,89 @@ function damagePlayer() {
   game.playerInvincible = 160;
 }
 
+function handleEnemyDestroyed(enemy) {
+  if (!enemy.special) return;
+  spawnBaseShieldPickup();
+}
+
+function spawnBaseShieldPickup() {
+  const cell = findPickupCell();
+  if (!cell) return;
+  game.pickups = [
+    {
+      type: "baseShield",
+      x: cell.x * TILE + 6,
+      y: cell.y * TILE + 6,
+      w: 20,
+      h: 20,
+    },
+  ];
+  addSparks(cell.x * TILE + 16, cell.y * TILE + 16, "#8cb7ff", 18);
+}
+
+function findPickupCell() {
+  for (let attempt = 0; attempt < 180; attempt += 1) {
+    const x = 1 + Math.floor(Math.random() * (GRID - 2));
+    const y = 1 + Math.floor(Math.random() * (GRID - 3));
+    if (pickupCellIsOpen(x, y)) return { x, y };
+  }
+
+  for (let y = 1; y < GRID - 1; y += 1) {
+    for (let x = 1; x < GRID - 1; x += 1) {
+      if (pickupCellIsOpen(x, y)) return { x, y };
+    }
+  }
+
+  return null;
+}
+
+function pickupCellIsOpen(x, y) {
+  if (game.map[y]?.[x] !== 0) return false;
+  if (BASE_SHIELD_CELLS.some(([cellX, cellY]) => cellX === x && cellY === y)) return false;
+  if (
+    (x <= 1 && y <= 1) ||
+    (x >= 11 && x <= 14 && y <= 1) ||
+    (x >= 23 && y <= 1) ||
+    (x >= 8 && x <= 10 && y >= 23)
+  ) {
+    return false;
+  }
+
+  const rect = { x: x * TILE + 6, y: y * TILE + 6, w: 20, h: 20 };
+  if (rectsOverlap(rect, game.player) || rectsOverlap(rect, game.base)) return false;
+  return !game.enemies.some((enemy) => rectsOverlap(rect, enemy));
+}
+
+function collectPickups() {
+  if (game.pickups.length === 0) return;
+
+  for (const pickup of game.pickups) {
+    if (rectsOverlap(game.player, pickup)) {
+      if (pickup.type === "baseShield") activateBaseShield();
+      pickup.dead = true;
+      addSparks(pickup.x + pickup.w / 2, pickup.y + pickup.h / 2, "#f7f2b5", 24);
+    }
+  }
+}
+
+function activateBaseShield() {
+  for (const [x, y] of BASE_SHIELD_CELLS) {
+    game.map[y][x] = 2;
+  }
+  game.baseShieldTimer = BASE_SHIELD_TICKS;
+}
+
+function updateBaseShield() {
+  if (game.baseShieldTimer <= 0) return;
+
+  game.baseShieldTimer -= 1;
+  if (game.baseShieldTimer > 0) return;
+
+  for (const [x, y] of BASE_SHIELD_CELLS) {
+    game.map[y][x] = 1;
+  }
+}
+
 function collidesMap(rect, blocksWater) {
   for (const cell of touchedCells(rect)) {
     const tile = game.map[cell.y]?.[cell.x];
@@ -1410,6 +2136,7 @@ function touchedCells(rect) {
 function cleanup() {
   game.bullets = game.bullets.filter((bullet) => !bullet.dead);
   game.enemies = game.enemies.filter((enemy) => !enemy.dead);
+  game.pickups = game.pickups.filter((pickup) => !pickup.dead);
 }
 
 function checkEndState() {
@@ -1420,9 +2147,15 @@ function checkEndState() {
   }
   if (game.enemiesRemaining === 0 && game.enemies.length === 0) {
     game.stage += 1;
-    game.enemiesRemaining = getEnemyCountForStage(game.stage);
+    const enemyCount = getEnemyCountForStage(game.stage);
+    game.enemiesRemaining = enemyCount;
+    game.totalEnemies = enemyCount;
+    game.specialEnemySlots = makeSpecialEnemySlots(enemyCount);
+    game.spawnIndex = 0;
     game.playerInvincible = 160;
     game.spawnTimer = 120;
+    game.pickups = [];
+    game.baseShieldTimer = 0;
     game.map = createMap(game.stage);
     game.player.x = PLAYER_SPAWN_X;
     game.player.y = PLAYER_SPAWN_Y;
@@ -1469,6 +2202,7 @@ function render() {
   drawBackdrop();
   drawMap(false);
   drawBase();
+  drawPickups();
   drawTank(game.player);
   for (const enemy of game.enemies) drawTank(enemy);
   drawBullets();
@@ -1513,6 +2247,7 @@ function drawMap(onlyTrees) {
       if (tile === 2) drawSteel(px, py);
       if (tile === 3) drawWater(px, py);
       if (tile === 4) drawTrees(px, py);
+      if (tile === 5) drawIce(px, py);
     }
   }
 }
@@ -1587,6 +2322,33 @@ function drawWater(x, y) {
   ctx.moveTo(x + 5, y + 11);
   ctx.quadraticCurveTo(x + 12, y + 7, x + 19, y + 11);
   ctx.stroke();
+}
+
+function drawIce(x, y) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, TILE, TILE);
+  ctx.clip();
+
+  ctx.fillStyle = "#d8ded8";
+  ctx.fillRect(x, y, TILE, TILE);
+  ctx.fillStyle = "rgba(247, 250, 246, 0.72)";
+  ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
+  ctx.strokeStyle = "#8f9892";
+  ctx.lineWidth = 2;
+  for (let offset = -20; offset < TILE + 20; offset += 10) {
+    ctx.beginPath();
+    ctx.moveTo(x + offset, y + TILE);
+    ctx.lineTo(x + offset + TILE, y);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x + 5, y + 8);
+  ctx.lineTo(x + 20, y + 3);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function drawTrees(x, y) {
@@ -1670,13 +2432,44 @@ function drawPixelEagle(x, y, color, plaqueColor) {
   ctx.fillRect(x + 20, y + 2, 2, 1);
 }
 
+function drawPickups() {
+  for (const pickup of game.pickups) {
+    if (pickup.type === "baseShield") drawBaseShieldPickup(pickup);
+  }
+}
+
+function drawBaseShieldPickup(pickup) {
+  const pulse = 0.65 + Math.sin(game.tick / 10) * 0.18;
+  ctx.save();
+  ctx.globalAlpha = 0.9;
+  ctx.fillStyle = `rgba(116, 170, 255, ${pulse})`;
+  ctx.fillRect(pickup.x - 3, pickup.y - 3, pickup.w + 6, pickup.h + 6);
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = "#1c2750";
+  ctx.fillRect(pickup.x, pickup.y, pickup.w, pickup.h);
+  ctx.fillStyle = "#355fc4";
+  ctx.fillRect(pickup.x + 2, pickup.y + 2, pickup.w - 4, pickup.h - 4);
+  ctx.fillStyle = "#eef4ff";
+  ctx.fillRect(pickup.x + 4, pickup.y + 4, 12, 12);
+  ctx.fillStyle = "#21428c";
+  ctx.fillRect(pickup.x + 6, pickup.y + 7, 3, 8);
+  ctx.fillRect(pickup.x + 9, pickup.y + 5, 4, 3);
+  ctx.fillRect(pickup.x + 10, pickup.y + 10, 4, 3);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(pickup.x + 14, pickup.y + 3, 3, 3);
+  ctx.fillRect(pickup.x + 3, pickup.y + 15, 3, 3);
+  ctx.restore();
+}
+
 function drawTank(tank) {
   if (tank.alive === false) return;
   if (tank.type === "player" && game.playerInvincible > 0 && Math.floor(game.playerInvincible / 6) % 2 === 0) return;
 
   const cx = tank.x + tank.w / 2;
   const cy = tank.y + tank.h / 2;
-  const accent = tank.type === "player" ? "#f8e778" : shade(tank.color, 38);
+  const tankColor = tankDisplayColor(tank);
+  const accent = tank.type === "player" ? "#f8e778" : shade(tankColor, 38);
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(dirAngle(tank.dir));
@@ -1693,22 +2486,22 @@ function drawTank(tank) {
     ctx.fillRect(8, y, 5, 2);
   }
 
-  ctx.fillStyle = shade(tank.color, -42);
+  ctx.fillStyle = shade(tankColor, -42);
   ctx.fillRect(-10, -13, 20, 26);
-  ctx.fillStyle = tank.color;
+  ctx.fillStyle = tankColor;
   ctx.fillRect(-9, -12, 18, 24);
-  ctx.fillStyle = shade(tank.color, 32);
+  ctx.fillStyle = shade(tankColor, 32);
   ctx.fillRect(-7, -10, 14, 2);
   ctx.fillRect(-7, -10, 2, 12);
-  ctx.fillStyle = shade(tank.color, -28);
+  ctx.fillStyle = shade(tankColor, -28);
   ctx.fillRect(6, -10, 2, 20);
   ctx.fillRect(-7, 9, 14, 2);
 
-  ctx.fillStyle = shade(tank.color, -55);
+  ctx.fillStyle = shade(tankColor, -55);
   ctx.fillRect(-5, -6, 10, 12);
   ctx.fillStyle = accent;
   ctx.fillRect(-3, -4, 6, 8);
-  ctx.fillStyle = shade(tank.color, -68);
+  ctx.fillStyle = shade(tankColor, -68);
   ctx.fillRect(-1, -2, 2, 4);
 
   ctx.fillStyle = "#d8d7c7";
@@ -1718,7 +2511,7 @@ function drawTank(tank) {
   ctx.fillStyle = "#e8e6d1";
   ctx.fillRect(-3, -23, 6, 3);
 
-  ctx.fillStyle = shade(tank.color, -65);
+  ctx.fillStyle = shade(tankColor, -65);
   for (const [bx, by] of [
     [-8, -11],
     [6, -11],
@@ -1729,6 +2522,12 @@ function drawTank(tank) {
   }
 
   ctx.restore();
+}
+
+function tankDisplayColor(tank) {
+  if (!tank.special) return tank.color;
+  const colors = ["#d88349", "#91c66d", "#5dbbe7", "#f1d85d"];
+  return colors[Math.floor(game.tick / 60) % colors.length];
 }
 
 function drawBullets() {
