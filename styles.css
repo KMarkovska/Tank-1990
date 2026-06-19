@@ -169,6 +169,45 @@ button {
   min-width: 148px;
 }
 
+.stage-picker {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.overlay-stage-picker {
+  width: min(210px, 100%);
+}
+
+.stage-picker select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0 36px 0 12px;
+  background:
+    linear-gradient(45deg, transparent 50%, var(--accent) 50%) calc(100% - 18px) 17px / 6px 6px no-repeat,
+    linear-gradient(135deg, var(--accent) 50%, transparent 50%) calc(100% - 12px) 17px / 6px 6px no-repeat,
+    var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 900;
+  outline: none;
+  text-transform: uppercase;
+  appearance: none;
+}
+
+.stage-picker select:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(244, 194, 60, 0.28);
+}
+
 .side-panel {
   border-radius: 8px;
   padding: 16px;
