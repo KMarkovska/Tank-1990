@@ -17,7 +17,8 @@ const stageSelects = [...document.querySelectorAll("[data-stage-select]")];
 const TILE = 32;
 const GRID = 26;
 const WORLD = TILE * GRID;
-const MAX_SELECTABLE_STAGE = 10;
+const MAX_SELECTABLE_STAGE = 15;
+const MAX_ENEMIES_PER_STAGE = 50;
 const PLAYER_SPAWN_X = 9 * TILE;
 const PLAYER_SPAWN_Y = 24 * TILE;
 const DIRS = {
@@ -48,7 +49,7 @@ function normalizeStage(stage) {
 }
 
 function getEnemyCountForStage(stage) {
-  return stage === 1 ? 18 : 18 + stage * 4;
+  return Math.min(stage === 1 ? 18 : 18 + stage * 4, MAX_ENEMIES_PER_STAGE);
 }
 
 function makeGame() {
@@ -201,6 +202,26 @@ function applyStageLayout(map, stage) {
 
   if (stage === 10) {
     applyStageTenLayout(map);
+  }
+
+  if (stage === 11) {
+    applyStageElevenLayout(map);
+  }
+
+  if (stage === 12) {
+    applyStageTwelveLayout(map);
+  }
+
+  if (stage === 13) {
+    applyStageThirteenLayout(map);
+  }
+
+  if (stage === 14) {
+    applyStageFourteenLayout(map);
+  }
+
+  if (stage === 15) {
+    applyStageFifteenLayout(map);
   }
 
   for (const [x, y] of clearGameplayCells()) {
@@ -719,6 +740,294 @@ function applyStageTenLayout(map) {
   ]);
 }
 
+function applyStageElevenLayout(map) {
+  clearMap(map);
+
+  setRect(map, 4, 0, 2, 6, 4);
+  setRect(map, 2, 4, 0, 4, 2);
+  setRect(map, 1, 2, 8, 2, 4);
+  setRect(map, 1, 4, 9, 8, 2);
+
+  setRect(map, 2, 10, 4, 2, 4);
+  setRect(map, 1, 12, 4, 10, 1);
+  setRect(map, 1, 14, 5, 2, 1);
+  setRect(map, 1, 18, 5, 2, 1);
+  setRect(map, 1, 12, 6, 10, 1);
+  setRect(map, 2, 22, 4, 2, 4);
+
+  setRect(map, 2, 12, 8, 2, 4);
+  setRect(map, 4, 14, 8, 6, 4);
+  setRect(map, 1, 20, 9, 2, 2);
+  setRect(map, 1, 22, 8, 1, 4);
+  setRect(map, 1, 25, 8, 1, 4);
+
+  setRect(map, 2, 10, 12, 2, 4);
+  setRect(map, 1, 12, 13, 10, 1);
+  setRect(map, 1, 14, 14, 2, 1);
+  setRect(map, 1, 18, 14, 2, 1);
+  setRect(map, 1, 12, 15, 10, 1);
+  setRect(map, 2, 22, 12, 2, 4);
+
+  setRect(map, 1, 6, 16, 2, 3);
+  setRect(map, 1, 4, 18, 4, 4);
+  setRect(map, 3, 0, 18, 4, 2);
+  setRect(map, 2, 0, 20, 4, 2);
+  setRect(map, 2, 4, 22, 2, 2);
+  setRect(map, 2, 0, 22, 4, 4);
+
+  setRect(map, 2, 8, 18, 2, 4);
+  setRect(map, 4, 10, 18, 6, 4);
+  setRect(map, 1, 12, 23, 4, 1);
+
+  setRect(map, 3, 18, 18, 4, 2);
+  setRect(map, 2, 18, 20, 4, 4);
+  setRect(map, 4, 22, 16, 4, 6);
+  setRect(map, 2, 22, 22, 2, 2);
+  setRect(map, 1, 24, 22, 2, 2);
+  setRect(map, 2, 20, 24, 2, 2);
+  setRect(map, 2, 24, 24, 2, 2);
+
+  setRect(map, 4, 22, 0, 2, 2);
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
+function applyStageTwelveLayout(map) {
+  clearMap(map);
+
+  setRect(map, 1, 4, 0, 4, 2);
+  setRect(map, 1, 6, 2, 2, 2);
+  setRect(map, 2, 0, 3, 2, 1);
+  setRect(map, 3, 0, 4, 4, 4);
+
+  setRect(map, 2, 6, 6, 4, 4);
+  setRect(map, 1, 4, 8, 1, 6);
+  setRect(map, 1, 5, 10, 3, 4);
+  setRect(map, 2, 0, 12, 4, 4);
+  setRect(map, 2, 5, 14, 2, 2);
+  setRect(map, 2, 6, 16, 1, 2);
+
+  setRect(map, 1, 12, 4, 2, 4);
+  setRect(map, 2, 13, 2, 1, 2);
+  setRect(map, 4, 14, 4, 4, 4);
+  setRect(map, 1, 14, 8, 2, 3);
+  setRect(map, 1, 18, 8, 2, 2);
+  setRect(map, 1, 18, 12, 2, 4);
+
+  setRect(map, 1, 18, 2, 4, 4);
+  setRect(map, 2, 22, 4, 4, 4);
+  setRect(map, 2, 24, 9, 2, 1);
+  setRect(map, 1, 22, 10, 2, 2);
+  setRect(map, 3, 22, 12, 4, 4);
+  setRect(map, 2, 20, 13, 2, 1);
+
+  setRect(map, 2, 12, 10, 4, 4);
+  setRect(map, 2, 14, 14, 4, 2);
+  setRect(map, 1, 10, 14, 4, 2);
+  setRect(map, 2, 8, 14, 2, 2);
+
+  setRect(map, 2, 6, 18, 2, 2);
+  setRect(map, 4, 8, 18, 4, 4);
+  setRect(map, 2, 8, 18, 1, 2);
+  setRect(map, 2, 12, 16, 4, 3);
+  setRect(map, 4, 18, 16, 4, 4);
+  setRect(map, 2, 20, 16, 2, 2);
+  setRect(map, 2, 18, 20, 1, 1);
+
+  setRect(map, 1, 0, 20, 2, 2);
+  setRect(map, 2, 0, 22, 2, 2);
+  setRect(map, 1, 0, 24, 4, 2);
+  setRect(map, 1, 4, 20, 2, 4);
+  setRect(map, 2, 5, 24, 1, 2);
+
+  setRect(map, 1, 20, 20, 2, 2);
+  setRect(map, 1, 20, 22, 4, 2);
+  setRect(map, 2, 20, 24, 1, 2);
+  setRect(map, 2, 24, 23, 1, 2);
+  setRect(map, 4, 22, 24, 4, 2);
+
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
+function applyStageThirteenLayout(map) {
+  clearMap(map);
+
+  setRect(map, 4, 4, 0, 4, 4);
+  setRect(map, 2, 8, 2, 4, 2);
+  setRect(map, 1, 2, 4, 4, 4);
+  setRect(map, 2, 8, 6, 4, 1);
+  setRect(map, 3, 8, 4, 4, 2);
+  setRect(map, 2, 6, 6, 4, 4);
+
+  setRect(map, 1, 12, 4, 4, 4);
+  setRect(map, 2, 16, 6, 4, 4);
+  setRect(map, 4, 20, 2, 4, 4);
+  setRect(map, 1, 24, 6, 2, 4);
+
+  setRect(map, 3, 0, 10, 2, 2);
+  setRect(map, 4, 2, 10, 2, 2);
+  setRect(map, 2, 0, 12, 2, 2);
+  setRect(map, 1, 2, 12, 2, 2);
+  setRect(map, 4, 8, 10, 4, 4);
+  setRect(map, 1, 14, 10, 4, 4);
+  setRect(map, 3, 20, 10, 4, 2);
+  setRect(map, 2, 20, 12, 4, 2);
+  setRect(map, 1, 24, 14, 2, 4);
+
+  setRect(map, 3, 6, 14, 4, 4);
+  setRect(map, 2, 12, 14, 4, 4);
+  setRect(map, 1, 22, 14, 4, 4);
+
+  setRect(map, 1, 4, 18, 4, 4);
+  setRect(map, 2, 4, 20, 2, 2);
+  setRect(map, 1, 16, 18, 4, 4);
+  setRect(map, 3, 18, 18, 2, 4);
+
+  setRect(map, 2, 0, 22, 4, 4);
+  setRect(map, 2, 8, 22, 2, 2);
+  setRect(map, 1, 11, 22, 4, 1);
+  setRect(map, 1, 20, 22, 6, 4);
+  setRect(map, 4, 22, 24, 4, 2);
+
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
+function applyStageFourteenLayout(map) {
+  clearMap(map);
+
+  setRect(map, 3, 0, 2, 4, 2);
+  setRect(map, 4, 0, 4, 2, 7);
+  setRect(map, 1, 0, 8, 2, 2);
+  setRect(map, 3, 2, 6, 6, 2);
+  setRect(map, 3, 2, 8, 2, 2);
+  setRect(map, 1, 4, 8, 2, 2);
+  setRect(map, 4, 6, 8, 4, 2);
+  setRect(map, 3, 2, 12, 2, 2);
+  setRect(map, 2, 0, 14, 4, 1);
+
+  setRect(map, 1, 6, 0, 4, 2);
+  setRect(map, 3, 6, 2, 10, 2);
+  setRect(map, 1, 6, 4, 2, 2);
+  setRect(map, 4, 8, 6, 2, 4);
+  setRect(map, 3, 10, 6, 2, 2);
+  setRect(map, 1, 12, 6, 2, 2);
+  setRect(map, 3, 14, 6, 2, 2);
+  setRect(map, 3, 6, 10, 6, 2);
+  setRect(map, 3, 6, 12, 2, 2);
+
+  setRect(map, 1, 10, 14, 2, 4);
+  setRect(map, 2, 12, 14, 4, 1);
+  setRect(map, 2, 14, 15, 2, 2);
+  setRect(map, 1, 12, 18, 2, 3);
+  setRect(map, 1, 12, 20, 4, 2);
+  setRect(map, 2, 8, 18, 2, 2);
+  setRect(map, 2, 6, 18, 2, 1);
+  setRect(map, 1, 4, 19, 2, 4);
+  setRect(map, 1, 4, 22, 4, 2);
+
+  setRect(map, 3, 18, 0, 2, 6);
+  setRect(map, 4, 16, 6, 2, 4);
+  setRect(map, 3, 18, 6, 6, 2);
+  setRect(map, 1, 18, 8, 2, 2);
+  setRect(map, 4, 20, 8, 2, 7);
+  setRect(map, 3, 14, 10, 6, 2);
+  setRect(map, 3, 14, 10, 2, 2);
+  setRect(map, 3, 20, 10, 6, 2);
+  setRect(map, 2, 20, 14, 4, 2);
+  setRect(map, 4, 22, 16, 4, 2);
+  setRect(map, 1, 24, 18, 2, 2);
+
+  setRect(map, 1, 18, 14, 2, 8);
+  setRect(map, 1, 20, 18, 4, 3);
+  setRect(map, 1, 18, 22, 6, 2);
+
+  setRect(map, 2, 0, 23, 2, 2);
+  setRect(map, 2, 0, 25, 8, 1);
+  setRect(map, 2, 6, 18, 2, 4);
+  setRect(map, 2, 8, 20, 2, 2);
+  setRect(map, 2, 24, 25, 2, 1);
+
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
+function applyStageFifteenLayout(map) {
+  clearMap(map);
+
+  setRect(map, 2, 0, 2, 4, 2);
+  setRect(map, 1, 4, 2, 4, 2);
+  setRect(map, 1, 2, 4, 2, 4);
+  setRect(map, 2, 6, 4, 2, 2);
+  setRect(map, 1, 8, 4, 2, 2);
+  setRect(map, 3, 10, 4, 2, 2);
+
+  setRect(map, 2, 14, 2, 2, 1);
+  setRect(map, 2, 12, 3, 4, 1);
+  setRect(map, 4, 12, 4, 4, 4);
+  setRect(map, 4, 14, 8, 2, 2);
+  setRect(map, 2, 20, 0, 2, 2);
+  setRect(map, 1, 22, 0, 2, 2);
+  setRect(map, 2, 22, 4, 2, 2);
+  setRect(map, 1, 24, 4, 2, 2);
+
+  setRect(map, 1, 6, 6, 4, 4);
+  setRect(map, 1, 8, 8, 4, 2);
+  setRect(map, 2, 0, 10, 2, 2);
+  setRect(map, 1, 2, 10, 6, 2);
+  setRect(map, 2, 8, 10, 3, 4);
+  setRect(map, 1, 10, 12, 4, 2);
+  setRect(map, 2, 13, 14, 1, 2);
+  setRect(map, 1, 12, 12, 2, 4);
+
+  setRect(map, 2, 3, 12, 3, 4);
+  setRect(map, 4, 4, 14, 2, 4);
+  setRect(map, 4, 8, 14, 2, 2);
+  setRect(map, 2, 9, 16, 1, 2);
+  setRect(map, 1, 10, 18, 2, 4);
+  setRect(map, 1, 6, 22, 6, 2);
+  setRect(map, 2, 12, 20, 4, 2);
+
+  setRect(map, 2, 17, 6, 1, 4);
+  setRect(map, 1, 18, 8, 2, 2);
+  setRect(map, 1, 14, 10, 6, 2);
+  setRect(map, 1, 16, 12, 2, 6);
+  setRect(map, 2, 20, 10, 2, 2);
+  setRect(map, 4, 22, 8, 4, 4);
+  setRect(map, 1, 22, 10, 4, 2);
+
+  setRect(map, 4, 22, 12, 2, 2);
+  setRect(map, 3, 22, 14, 2, 6);
+  setRect(map, 2, 24, 12, 2, 6);
+  setRect(map, 1, 18, 18, 4, 2);
+  setRect(map, 1, 16, 20, 4, 2);
+  setRect(map, 3, 20, 18, 4, 2);
+  setRect(map, 1, 22, 20, 2, 2);
+
+  setRect(map, 1, 6, 20, 6, 2);
+  setRect(map, 2, 20, 23, 5, 1);
+  setRect(map, 2, 24, 24, 2, 2);
+
+  setRect(map, 1, 11, 24, 4, 1);
+  setTiles(map, 1, [
+    [11, 25],
+    [14, 25],
+  ]);
+}
+
 function addTiles(map, tile, cells) {
   for (const [x, y] of cells) {
     if (map[y]?.[x] === 0) map[y][x] = tile;
@@ -1111,7 +1420,7 @@ function checkEndState() {
   }
   if (game.enemiesRemaining === 0 && game.enemies.length === 0) {
     game.stage += 1;
-    game.enemiesRemaining = 18 + game.stage * 4;
+    game.enemiesRemaining = getEnemyCountForStage(game.stage);
     game.playerInvincible = 160;
     game.spawnTimer = 120;
     game.map = createMap(game.stage);
