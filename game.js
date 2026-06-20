@@ -21,6 +21,7 @@ const MAX_SELECTABLE_STAGE = 25;
 const MAX_ENEMIES_PER_STAGE = 30;
 const SPECIAL_ENEMY_COUNT = 8;
 const BASE_SHIELD_TICKS = 60 * 60;
+const PLAYER_SHIELD_TICKS = 60 * 60;
 const PLAYER_SPAWN_X = 9 * TILE;
 const PLAYER_SPAWN_Y = 24 * TILE;
 const DIRS = {
@@ -78,6 +79,7 @@ function makeGame() {
     spawnIndex: 0,
     tick: 0,
     playerInvincible: 120,
+    playerShieldTimer: 0,
     baseShieldTimer: 0,
     message: "Tank 1990",
     map: createMap(stage),
@@ -1786,6 +1788,7 @@ function update() {
   for (const enemy of game.enemies) updateEnemy(enemy);
   updateBullets();
   updateBaseShield();
+  updatePlayerShield();
   updateSparks();
   cleanup();
   checkEndState();
@@ -1903,7 +1906,8 @@ function hasLineOfSight(enemy) {
 function moveEntity(entity, dx, dy) {
   const next = { ...entity, x: entity.x + dx, y: entity.y + dy };
   if (next.x < 0 || next.y < 0 || next.x + next.w > WORLD || next.y + next.h > WORLD) return false;
-  if (collidesMap(next, true)) return false;
+  const blocksWater = entity.type !== "player" || game.playerShieldTimer <= 0;
+  if (collidesMap(next, blocksWater)) return false;
   const blockers = entity.type === "enemy" ? [game.player, ...game.enemies.filter((e) => e !== entity)] : game.enemies;
   for (const other of blockers) {
     if (rectsOverlap(next, other)) {
@@ -1982,7 +1986,7 @@ function updateBullets() {
           break;
         }
       }
-    } else if (game.playerInvincible <= 0 && rectsOverlap(bullet, game.player)) {
+    } else if (game.playerInvincible <= 0 && game.playerShieldTimer <= 0 && rectsOverlap(bullet, game.player)) {
       bullet.dead = true;
       damagePlayer();
     }
@@ -2032,15 +2036,16 @@ function damagePlayer() {
 
 function handleEnemyDestroyed(enemy) {
   if (!enemy.special) return;
-  spawnBaseShieldPickup();
+  spawnSpecialPickup();
 }
 
-function spawnBaseShieldPickup() {
+function spawnSpecialPickup() {
   const cell = findPickupCell();
   if (!cell) return;
+  const type = Math.random() < 0.5 ? "baseShield" : "playerShield";
   game.pickups = [
     {
-      type: "baseShield",
+      type,
       x: cell.x * TILE + 4,
       y: cell.y * TILE + 4,
       w: 24,
@@ -2089,6 +2094,7 @@ function collectPickups() {
   for (const pickup of game.pickups) {
     if (rectsOverlap(game.player, pickup)) {
       if (pickup.type === "baseShield") activateBaseShield();
+      if (pickup.type === "playerShield") activatePlayerShield();
       pickup.dead = true;
       addSparks(pickup.x + pickup.w / 2, pickup.y + pickup.h / 2, "#f7f2b5", 24);
     }
@@ -2102,6 +2108,11 @@ function activateBaseShield() {
   game.baseShieldTimer = BASE_SHIELD_TICKS;
 }
 
+function activatePlayerShield() {
+  game.playerShieldTimer = PLAYER_SHIELD_TICKS;
+  addSparks(game.player.x + game.player.w / 2, game.player.y + game.player.h / 2, "#9fc7ff", 36);
+}
+
 function updateBaseShield() {
   if (game.baseShieldTimer <= 0) return;
 
@@ -2111,6 +2122,10 @@ function updateBaseShield() {
   for (const [x, y] of BASE_SHIELD_CELLS) {
     game.map[y][x] = 1;
   }
+}
+
+function updatePlayerShield() {
+  if (game.playerShieldTimer > 0) game.playerShieldTimer -= 1;
 }
 
 function collidesMap(rect, blocksWater) {
@@ -2153,6 +2168,7 @@ function checkEndState() {
     game.specialEnemySlots = makeSpecialEnemySlots(enemyCount);
     game.spawnIndex = 0;
     game.playerInvincible = 160;
+    game.playerShieldTimer = 0;
     game.spawnTimer = 120;
     game.pickups = [];
     game.baseShieldTimer = 0;
@@ -2435,6 +2451,7 @@ function drawPixelEagle(x, y, color, plaqueColor) {
 function drawPickups() {
   for (const pickup of game.pickups) {
     if (pickup.type === "baseShield") drawBaseShieldPickup(pickup);
+    if (pickup.type === "playerShield") drawPlayerShieldPickup(pickup);
   }
 }
 
@@ -2475,6 +2492,40 @@ function drawBaseShieldPickup(pickup) {
   ctx.fillStyle = "#4c3f1c";
   ctx.fillRect(pickup.x + 9, pickup.y + 10, 6, 2);
   ctx.fillRect(pickup.x + 10, pickup.y + 12, 4, 3);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(pickup.x + 18, pickup.y + 4, 2, 2);
+  ctx.fillRect(pickup.x + 4, pickup.y + 18, 2, 2);
+  ctx.restore();
+}
+
+function drawPlayerShieldPickup(pickup) {
+  const pulse = 0.65 + Math.sin(game.tick / 10) * 0.18;
+  ctx.save();
+  ctx.globalAlpha = 0.9;
+  ctx.fillStyle = `rgba(116, 170, 255, ${pulse})`;
+  ctx.fillRect(pickup.x - 3, pickup.y - 3, pickup.w + 6, pickup.h + 6);
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = "#11182f";
+  ctx.fillRect(pickup.x, pickup.y, pickup.w, pickup.h);
+  ctx.fillStyle = "#2f62c9";
+  ctx.fillRect(pickup.x + 2, pickup.y + 2, pickup.w - 4, pickup.h - 4);
+  ctx.fillStyle = "#7fb1ff";
+  ctx.fillRect(pickup.x + 3, pickup.y + 3, pickup.w - 6, 2);
+  ctx.fillRect(pickup.x + 3, pickup.y + 3, 2, pickup.h - 6);
+
+  ctx.fillStyle = "#dce9ff";
+  ctx.fillRect(pickup.x + 7, pickup.y + 5, 10, 3);
+  ctx.fillRect(pickup.x + 5, pickup.y + 8, 14, 6);
+  ctx.fillRect(pickup.x + 7, pickup.y + 14, 10, 3);
+  ctx.fillStyle = "#6d8dcc";
+  ctx.fillRect(pickup.x + 8, pickup.y + 8, 8, 6);
+  ctx.fillStyle = "#142b61";
+  ctx.fillRect(pickup.x + 9, pickup.y + 9, 6, 4);
+
+  ctx.fillStyle = "#f1d85d";
+  ctx.fillRect(pickup.x + 11, pickup.y + 4, 2, 15);
+  ctx.fillRect(pickup.x + 6, pickup.y + 10, 12, 2);
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(pickup.x + 18, pickup.y + 4, 2, 2);
   ctx.fillRect(pickup.x + 4, pickup.y + 18, 2, 2);
@@ -2540,6 +2591,26 @@ function drawTank(tank) {
     ctx.fillRect(bx, by, 2, 2);
   }
 
+  ctx.restore();
+  if (tank.type === "player" && game.playerShieldTimer > 0) drawPlayerShieldAura(tank);
+}
+
+function drawPlayerShieldAura(tank) {
+  const pulse = 0.35 + Math.sin(game.tick / 8) * 0.12;
+  const x = tank.x - 3;
+  const y = tank.y - 3;
+  const size = tank.w + 6;
+  ctx.save();
+  ctx.fillStyle = `rgba(130, 185, 255, ${pulse})`;
+  ctx.fillRect(x, y, size, 3);
+  ctx.fillRect(x, y + size - 3, size, 3);
+  ctx.fillRect(x, y, 3, size);
+  ctx.fillRect(x + size - 3, y, 3, size);
+  ctx.fillStyle = "#dce9ff";
+  ctx.fillRect(x + 4, y + 4, 3, 3);
+  ctx.fillRect(x + size - 7, y + 4, 3, 3);
+  ctx.fillRect(x + 4, y + size - 7, 3, 3);
+  ctx.fillRect(x + size - 7, y + size - 7, 3, 3);
   ctx.restore();
 }
 
