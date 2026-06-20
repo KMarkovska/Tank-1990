@@ -18,5 +18,6 @@ Defend the base at the bottom of the map. Destroy all enemy tanks to advance to 
 
 ## Game image
 
-<img width="926" height="430" alt="image" src="https://github.com/user-attachments/assets/c6d7b995-258b-4701-b3d4-96c851ca23bb" />
+<img width="471" height="352" alt="image" src="https://github.com/user-attachments/assets/850ffbc7-c2ca-45e9-861a-d0996fb46753" />
+
 
